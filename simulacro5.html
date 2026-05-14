@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Simulacro INE – Módulo A · v5</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,800;1,300&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --mg:#c2185b; --mg2:#e91e8c; --mg-pale:#fce4ec; --mg-mid:#f48fb1;
+    --green:#1b5e20; --green-l:#e8f5e9; --green-m:#43a047;
+    --red:#b71c1c; --red-l:#ffebee;
+    --blue:#0d47a1; --blue-l:#e3f2fd;
+    --orange:#e65100; --orange-l:#fff3e0;
+    --purple:#4a148c; --purple-l:#f3e5f5;
+    --g50:#fafafa; --g100:#f5f5f5; --g200:#eeeeee;
+    --g400:#bdbdbd; --g600:#757575; --g800:#424242; --g900:#212121;
+    --r:14px; --rs:10px; --sh:0 2px 12px rgba(0,0,0,0.08);
+  }
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body { font-family:'DM Sans',sans-serif; background:#f0f0f2; color:var(--g900); min-height:100dvh; line-height:1.65; overflow-x:hidden; }
+
+  /* HEADER */
+  .hdr { background:linear-gradient(135deg,#880e4f 0%,#c2185b 55%,#ad1457 100%); color:#fff; padding:10px 14px; display:flex; align-items:center; gap:10px; box-shadow:0 3px 14px rgba(194,24,91,.4); position:sticky; top:0; z-index:200; }
+  .hdr-logo { font-size:1.4rem; flex-shrink:0; }
+  .hdr-text { flex:1; min-width:0; }
+  .hdr h1 { font-family:'Fraunces',serif; font-size:.88rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hdr p { font-size:.62rem; opacity:.75; margin-top:1px; }
+  .hdr-right { flex-shrink:0; text-align:right; }
+  .timer { font-family:'Fraunces',serif; font-size:1.45rem; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.02em; line-height:1; }
+  .timer.warn  { color:#ffee58; animation:blink 1.2s ease infinite; }
+  .timer.danger{ color:#ff5252; animation:blink .55s ease infinite; }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:.45} }
+  .t-lbl { font-size:.56rem; opacity:.65; text-transform:uppercase; letter-spacing:.06em; }
+  .prog-wrap { background:rgba(0,0,0,.25); height:4px; }
+  .prog-bar   { height:4px; background:#ffee58; transition:width .5s ease; box-shadow:0 0 8px #ffee58aa; }
+
+  /* MAIN */
+  .main { padding:14px 12px 90px; max-width:600px; margin:0 auto; }
+
+  /* START */
+  .start { background:#fff; border-radius:var(--r); padding:24px 16px; box-shadow:var(--sh); text-align:center; margin-top:14px; animation:up .5s ease; }
+  .start .ico { font-size:2.2rem; margin-bottom:10px; }
+  .start h2 { font-family:'Fraunces',serif; font-size:1.5rem; color:var(--mg); margin-bottom:5px; }
+  .start .sub { color:var(--g600); font-size:.8rem; margin-bottom:18px; line-height:1.5; }
+  .dist-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; text-align:left; }
+  .dist-box { background:var(--g50); border:1.5px solid var(--g200); border-radius:var(--rs); padding:11px 12px; }
+  .dist-box h4 { font-size:.64rem; text-transform:uppercase; letter-spacing:.06em; color:var(--mg); font-weight:700; margin-bottom:7px; }
+  .dist-row { display:flex; justify-content:space-between; font-size:.74rem; color:var(--g800); padding:3px 0; border-bottom:1px dashed var(--g200); }
+  .dist-row:last-child { border:none; }
+  .dist-row .n { font-weight:700; color:var(--mg); }
+  .fmt-legend { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:14px 0; }
+  .fmt-pill { padding:4px 11px; border-radius:20px; font-size:.69rem; font-weight:700; border:2px solid; }
+  .fmt-A { border-color:var(--blue);   color:var(--blue);   background:var(--blue-l); }
+  .fmt-B { border-color:var(--orange); color:var(--orange); background:var(--orange-l); }
+  .fmt-C { border-color:var(--purple); color:var(--purple); background:var(--purple-l); }
+  .fmt-D { border-color:var(--green);  color:var(--green);  background:var(--green-l); }
+  .info-chips { display:flex; justify-content:center; gap:8px; margin:14px 0 22px; flex-wrap:wrap; }
+  .chip { background:var(--mg-pale); color:var(--mg); border-radius:20px; padding:5px 12px; font-size:.75rem; font-weight:600; display:flex; align-items:center; gap:4px; }
+  .v5-badge { display:inline-block; background:linear-gradient(90deg,#c2185b,#7b1fa2); color:#fff; font-size:.7rem; font-weight:700; padding:3px 10px; border-radius:20px; margin-bottom:10px; }
+
+  /* Q-CARD */
+  .q-card { background:#fff; border-radius:var(--r); padding:16px 13px; box-shadow:var(--sh); margin-top:8px; animation:up .3s ease; }
+  @keyframes up { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
+  .q-meta { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:11px; gap:6px; }
+  .q-meta-l { display:flex; gap:5px; flex-wrap:wrap; align-items:center; flex:1; }
+  .q-badge { padding:3px 9px; border-radius:20px; font-size:.61rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; }
+  .b11{background:#f3e5f5;color:#6a1b9a} .b12{background:#e1f5fe;color:#01579b}
+  .b13{background:#e8f5e9;color:#1b5e20} .b21{background:#fff3e0;color:#bf360c}
+  .b22{background:var(--mg-pale);color:var(--mg)}
+  .fmt-badge { padding:3px 9px; border-radius:12px; font-size:.61rem; font-weight:700; border:1.5px solid; white-space:nowrap; }
+  .q-num { font-size:.68rem; color:var(--g600); font-weight:500; flex-shrink:0; white-space:nowrap; }
+  .passage { background:var(--g50); border-left:4px solid var(--mg); border-radius:0 var(--rs) var(--rs) 0; padding:11px 12px; margin:10px 0; font-size:.82rem; line-height:1.7; color:var(--g800); }
+  .p-lbl { font-size:.61rem; font-weight:700; color:var(--mg); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+  .q-text { font-weight:600; font-size:.88rem; margin-bottom:13px; color:var(--g900); line-height:1.5; }
+  .diff-badge { display:inline-block; font-size:.58rem; font-weight:700; padding:2px 7px; border-radius:10px; margin-left:4px; }
+  .diff-alta { background:#fce4ec; color:#c2185b; }
+  .diff-media { background:#fff3e0; color:#e65100; }
+
+  /* OPTIONS A/B */
+  .opts { display:flex; flex-direction:column; gap:9px; }
+  .opt { padding:13px 12px; border:2px solid var(--g200); border-radius:var(--rs); cursor:pointer; display:flex; align-items:flex-start; gap:10px; transition:border-color .13s,background .13s; font-size:.84rem; line-height:1.5; min-height:48px; }
+  .opt:active:not(.locked) { border-color:var(--mg-mid); background:#fff5f8; }
+  .opt.sel  { border-color:var(--mg);    background:#fff0f6; }
+  .opt.ok   { border-color:var(--green-m); background:var(--green-l); }
+  .opt.bad  { border-color:#e53935;     background:var(--red-l); }
+  .opt.locked { cursor:default; }
+  .opt-lt { min-width:26px; height:26px; border-radius:50%; background:var(--g200); display:flex; align-items:center; justify-content:center; font-size:.74rem; font-weight:700; flex-shrink:0; transition:background .13s,color .13s; }
+  .opt.sel .opt-lt  { background:var(--mg);    color:#fff; }
+  .opt.ok  .opt-lt  { background:var(--green-m); color:#fff; }
+  .opt.bad .opt-lt  { background:#e53935;     color:#fff; }
+  .res-ico { margin-left:auto; flex-shrink:0; font-size:.95rem; }
+
+  /* ORDERING – ↑↓ buttons */
+  .order-wrap { display:flex; flex-direction:column; gap:8px; margin:4px 0; }
+  .order-item { padding:11px 11px; border:2px solid var(--g200); border-radius:var(--rs); display:flex; align-items:center; gap:9px; font-size:.83rem; background:#fff; transition:border-color .13s,background .13s; user-select:none; }
+  .order-num { min-width:26px; height:26px; border-radius:50%; background:var(--g200); display:flex; align-items:center; justify-content:center; font-size:.73rem; font-weight:700; flex-shrink:0; }
+  .order-text { flex:1; line-height:1.4; }
+  .order-arrows { display:flex; flex-direction:column; gap:3px; flex-shrink:0; }
+  .arrow-btn { width:30px; height:28px; border:1.5px solid var(--g200); border-radius:6px; background:var(--g50); color:var(--g600); font-size:.82rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .12s; }
+  .arrow-btn:active:not([disabled]) { background:var(--mg); border-color:var(--mg); color:#fff; transform:scale(.92); }
+  .arrow-btn[disabled] { opacity:.22; cursor:default; }
+  .order-ok  .order-item { border-color:var(--green-m); background:var(--green-l); }
+  .order-ok  .order-num  { background:var(--green-m); color:#fff; }
+  .order-bad .order-item { border-color:#e53935; background:var(--red-l); }
+
+  /* FORMAT D – match */
+  .match-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:4px 0; }
+  .match-col h5 { font-size:.63rem; text-transform:uppercase; letter-spacing:.06em; color:var(--g600); font-weight:700; margin-bottom:7px; }
+  .match-left-item,.match-right-item { padding:10px 9px; border-radius:var(--rs); font-size:.79rem; border:2px solid var(--g200); background:#fff; margin-bottom:6px; cursor:pointer; transition:border-color .12s,background .12s; line-height:1.4; min-height:44px; display:flex; align-items:center; }
+  .match-left-item.active   { border-color:var(--mg);   background:var(--mg-pale); }
+  .match-right-item.matched { border-color:var(--blue); background:var(--blue-l); }
+  .match-pair-display { margin-top:10px; }
+  .match-pair { display:flex; align-items:center; gap:6px; padding:8px 10px; border-radius:6px; margin-bottom:5px; font-size:.78rem; background:var(--g50); border:1.5px solid var(--g200); flex-wrap:wrap; }
+  .match-pair.ok  { background:var(--green-l); border-color:var(--green-m); }
+  .match-pair.bad { background:var(--red-l);   border-color:#e53935; }
+  .match-arrow { color:var(--g400); }
+
+  /* EXPLANATION */
+  .expl { display:none; margin-top:13px; padding:11px 12px; background:var(--blue-l); border-radius:var(--rs); border-left:4px solid var(--blue); font-size:.8rem; line-height:1.6; color:var(--g800); animation:up .3s ease; }
+  .expl.show { display:block; }
+  .expl strong { color:var(--blue); }
+  .confirm-wrap { text-align:center; margin-top:13px; }
+
+  /* DOTS */
+  .dots { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:10px; }
+  .dot { width:9px; height:9px; border-radius:50%; background:var(--g200); transition:background .2s; flex-shrink:0; }
+  .dot.done { background:var(--mg); }
+  .dot.cur  { background:var(--mg2); box-shadow:0 0 0 3px var(--mg-pale); }
+  .dot.hit  { background:var(--green-m); }
+  .dot.miss { background:#e53935; }
+  .sec-hint { font-size:.66rem; color:var(--g600); text-align:center; padding:6px; background:var(--g50); border-radius:6px; margin-bottom:9px; }
+
+  /* BUTTONS */
+  .btn { padding:11px 18px; border-radius:var(--rs); border:none; font-family:'DM Sans',sans-serif; font-weight:700; font-size:.84rem; cursor:pointer; transition:all .14s; min-height:44px; }
+  .btn:active { transform:scale(.96); }
+  .btn-p { background:var(--mg); color:#fff; box-shadow:0 2px 8px rgba(194,24,91,.28); }
+  .btn-p:active { background:#ad1457; }
+  .btn-s { background:var(--g200); color:var(--g800); }
+  .btn-s:active { background:var(--g400); }
+  .btn-lg { padding:14px 28px; font-size:.92rem; border-radius:12px; width:100%; }
+  .btn-sm { padding:9px 15px; font-size:.81rem; min-height:40px; }
+
+  /* BOTTOM NAV */
+  .nav { position:fixed; bottom:0; left:0; right:0; background:#fff; padding:8px 14px; padding-bottom:max(8px,env(safe-area-inset-bottom)); display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--g200); box-shadow:0 -4px 14px rgba(0,0,0,.07); z-index:200; gap:8px; }
+  .nav-inf { font-size:.77rem; color:var(--g600); font-weight:500; line-height:1.4; }
+  .nav-sc  { font-size:.72rem; color:var(--g600); }
+  .nav-sc span { font-weight:700; color:var(--mg); }
+  .nav-btns { display:flex; gap:7px; flex-shrink:0; }
+
+  /* RESULTS */
+  .res-screen { background:#fff; border-radius:var(--r); padding:26px 16px; box-shadow:var(--sh); text-align:center; margin-top:14px; animation:up .5s ease; }
+  .score-ring { width:108px; height:108px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-family:'Fraunces',serif; font-size:1.85rem; color:#fff; box-shadow:0 8px 28px rgba(0,0,0,.15); }
+  .res-screen h2 { font-family:'Fraunces',serif; font-size:1.4rem; margin-bottom:5px; }
+  .res-big { font-size:.88rem; color:var(--g600); margin-bottom:16px; }
+  .brkdn { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin:14px 0; text-align:left; }
+  .bk-item { padding:10px 11px; border-radius:var(--rs); border:1.5px solid var(--g200); }
+  .bk-lbl  { font-size:.62rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin-bottom:3px; }
+  .bk-sc   { font-size:.9rem; font-weight:700; }
+  .bk-bar  { height:4px; background:var(--g200); border-radius:2px; margin-top:5px; }
+  .bk-fill { height:4px; border-radius:2px; transition:width 1.2s ease; }
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">📋</div>
+  <div class="hdr-text">
+    <h1>Módulo A · v5 <span style="font-size:.75em;opacity:.75">🔀 Aleatorio</span></h1>
+    <p>Comprensión lectora · Redacción indirecta · 4 formatos · Nivel avanzado</p>
+  </div>
+  <div class="hdr-right">
+    <div class="t-lbl">Tiempo</div>
+    <div class="timer" id="timer">90:00</div>
+  </div>
+</div>
+<div class="prog-wrap"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
+
+<div class="main">
+  <div class="start" id="startScreen">
+    <div class="ico">🗳️</div>
+    <div class="v5-badge">✨ Versión 5 · Nivel avanzado</div>
+    <h2>Módulo A – SPEN INE</h2>
+    <p class="sub">Simulacro v5 · <strong>Ejercicios de mayor complejidad</strong> · Textos más extensos · Inferencias de segundo y tercer orden · <strong>🔀 Preguntas aleatorias cada vez</strong></p>
+    <div class="dist-grid">
+      <div class="dist-box">
+        <h4>📖 1. Comprensión · 30 Qs</h4>
+        <div class="dist-row"><span>1.1 Ámbito estudio</span><span class="n">12</span></div>
+        <div class="dist-row"><span>1.2 Ámbito literario</span><span class="n">12</span></div>
+        <div class="dist-row"><span>1.3 Part. social</span><span class="n">6</span></div>
+      </div>
+      <div class="dist-box">
+        <h4>✏️ 2. Redacción · 30 Qs</h4>
+        <div class="dist-row"><span>2.1 Ámbito estudio</span><span class="n">15</span></div>
+        <div class="dist-row"><span>2.2 Part. social</span><span class="n">15</span></div>
+      </div>
+    </div>
+    <div class="fmt-legend">
+      <div class="fmt-pill fmt-A">A · Cuestionamiento directo</div>
+      <div class="fmt-pill fmt-B">B · Completamiento</div>
+      <div class="fmt-pill fmt-C">C · Ordenamiento</div>
+      <div class="fmt-pill fmt-D">D · Relación de elementos</div>
+    </div>
+    <div class="info-chips">
+      <div class="chip">📝 <strong>60</strong> preguntas</div>
+      <div class="chip">⏱️ <strong>90</strong> min</div>
+      <div class="chip">🎯 <strong>4</strong> formatos</div>
+      <div class="chip">🔀 aleatorio</div>
+      <div class="chip">🔥 avanzado</div>
+    </div>
+    <button class="btn btn-p btn-lg" onclick="startExam()">Comenzar simulacro →</button>
+  </div>
+  <div id="examScreen" class="hidden"></div>
+  <div id="resultsScreen" class="hidden"></div>
+</div>
+
+<div class="nav hidden" id="navBar">
+  <div>
+    <div class="nav-inf">Pregunta <strong id="navCur">1</strong> de <strong>60</strong></div>
+    <div class="nav-sc">Aciertos: <span id="navSc">0</span></div>
+  </div>
+  <div class="nav-btns">
+    <button class="btn btn-s btn-sm" onclick="prevQ()">← Ant.</button>
+    <button class="btn btn-p btn-sm" id="btnNext" onclick="nextQ()">Sig. →</button>
+  </div>
+</div>
+
+<script>
+const Q = [
+// ═══════════════════════════════════════════════════════
+// 1.1 COMPRENSIÓN LECTORA – ÁMBITO DE ESTUDIO (12 Qs)
+// ═══════════════════════════════════════════════════════
+{
+  id:1, sub:"1.1", label:"Comprensión lectora – Ámbito de estudio", fmt:"A",
+  pTitle:"La Inconmensurabilidad Paradigmática (Kuhn)",
+  passage:"Thomas Kuhn argumentó que los paradigmas científicos no son simplemente teorías mejores o peores, sino marcos conceptuales inconmensurables: los científicos que operan bajo paradigmas distintos literalmente no comparten los mismos conceptos, aunque usen las mismas palabras. El electrón del físico clásico y el del físico cuántico no son el mismo objeto descrito de dos formas; son objetos distintos construidos por prácticas de laboratorio e instrumentos de medición diferentes. Esta tesis implica que la transición entre paradigmas no puede evaluarse con criterios de racionalidad estrictamente lógica, sino que involucra lo que Kuhn llamó 'persuasión', con todo su peso retórico y sociológico.",
+  q:"¿Cuál sería la consecuencia más problemática de la tesis de la inconmensurabilidad para la filosofía de la ciencia tradicional?",
+  opts:["Que los científicos no pueden cambiar de paradigma sin entrenamiento adicional.","Que el progreso científico no puede evaluarse mediante criterios de racionalidad estrictamente lógica, lo que cuestiona la idea de verdad acumulativa.","Que los experimentos de laboratorio son culturalmente relativos y, por tanto, inválidos."],
+  correct:1, expl:"La tesis de Kuhn no niega que los experimentos sean válidos, pero sí pone en cuestión que el avance entre paradigmas sea puramente racional-lógico; el término 'persuasión' reintroduce la retórica y la sociología donde antes reinaba la lógica, amenazando la noción de verdad científica acumulativa."
+},
+{
+  id:2, sub:"1.1", label:"Comprensión lectora – Ámbito de estudio", fmt:"B",
+  pTitle:"Validez Interna vs. Validez Externa en Investigación",
+  passage:"Una investigación experimental con alto control de variables logra maximizar la validez interna: la confianza en que las diferencias observadas se deben a la variable manipulada y no a factores externos. Sin embargo, las mismas condiciones de control artificial que fortalecen la validez interna pueden debilitar la validez externa, es decir, la posibilidad de generalizar los hallazgos a contextos naturales menos controlados. Este dilema se denomina en metodología la 'tensión validez interna–validez externa' y no admite solución perfecta: cualquier diseño implica ceder en una dimensión para ganar en la otra.",
+  q:"Según el texto, en un estudio de laboratorio altamente controlado, la validez ________ se fortalece, pero a costa de comprometer la validez ________, que permite aplicar los resultados a situaciones reales.",
+  opts:["externa / interna","interna / externa","ecológica / estadística"],
+  correct:1, expl:"El texto establece explícitamente la dirección del intercambio: el control aumenta la validez interna (certeza sobre la causa), pero reduce la validez externa (aplicabilidad a entornos naturales)."
+},
+{
+  id:3, sub:"1.1", label:"Comprensión lectora – Ámbito de estudio", fmt:"D",
+  pTitle:"Diseños de Investigación y sus Características",
+  passage:"Los diseños de investigación se seleccionan según el grado de control del investigador, la capacidad de inferencia causal y el contexto en que se produce el fenómeno. Cada diseño presenta ventajas y limitaciones metodológicas específicas que determinan el tipo de preguntas que puede responder.",
+  q:"Relaciona cada diseño de investigación con su característica metodológica principal.",
+  leftItems:["Experimento aleatorizado controlado","Estudio de caso único","Encuesta transversal"],
+  rightItems:["Provee una descripción profunda de un fenómeno en un contexto específico, pero limita la generalización","Describe la distribución de variables en una población en un momento dado, sin establecer causalidad","Permite inferencia causal fuerte al controlar la asignación aleatoria de los participantes a condiciones"],
+  correctPairs:[[0,2],[1,0],[2,1]],
+  expl:"Experimento aleatorizado = causalidad fuerte por asignación aleatoria; Estudio de caso = profundidad contextual sin generalización; Encuesta transversal = descripción en un momento sin causalidad."
+},
+{
+  id:4, sub:"1.1", label:"Comprensión lectora – Ámbito de estudio", fmt:"C",
+  pTitle:"Proceso de Refutación de una Hipótesis",
+  passage:"El método hipotético-deductivo propuesto por Popper establece que una hipótesis científica debe ser falsable: debe formularse de manera que sea posible imaginar una observación que la refute. El proceso por el que una hipótesis se pone a prueba sigue una lógica precisa.",
+  q:"Ordena las etapas del método hipotético-deductivo para refutar una hipótesis, de la primera a la última.",
+  items:["Derivación de predicciones observables a partir de la hipótesis","Formulación de la hipótesis falsable","Revisión o rechazo de la hipótesis según el resultado","Contrastación empírica: diseño y ejecución del experimento o estudio"],
+  correctOrder:[1,0,3,2],
+  expl:"El orden es: Formulación de la hipótesis → Derivación de predicciones observables → Contrastación empírica → Revisión o rechazo según resultados."
+},
+{
+  id:5, sub:"1.1", label:"Comprensión lectora – Ámbito de estudio", fmt:"A",
+  pTitle:"La Falacia Ecológica y la Falacia Atomista",
+  passage:"La falacia ecológica ocurre cuando se atribuyen a los individuos las características estadísticas de los grupos a los que pertenecen. Por ejemplo: si los países con mayor PIB per cápita tienen menor mortalidad infantil, no se puede concluir que los individuos más ricos dentro de cada país tengan menor riesgo de mortalidad infantil. La falacia inversa, denominada atomista o individualista, consiste en inferir las propiedades de un grupo a partir de las de sus individuos, ignorando que los fenómenos colectivos tienen lógicas propias que no se reducen a la suma de sus partes.",
+  q:"Un investigador observa que los municipios con mayor número de iglesias tienen también mayor tasa de homicidios, y concluye que la religiosidad individual aumenta la propensión a la violencia. ¿Qué falacia comete?",
+  opts:["Falacia atomista, porque infiere propiedades individuales a partir de datos grupales.","Falacia ecológica, porque atribuye a los individuos una correlación que solo existe a nivel de unidades agregadas (municipios).","Falacia del hombre de paja, porque distorsiona el argumento contrario."],
+  correct:1, expl:"Los datos son de municipios (unidades ecológicas), pero la conclusión se aplica a individuos; eso define la falacia ecológica. Es el error clásico de Robinson (1950) sobre alfabetismo e inmigración."
+},
+{
+  id:6, sub:"1.1", label:"Comprensión lectora – Ámbito de estudio", fmt:"B",
+  pTitle:"El Efecto Hawthorne",
+  passage:"El efecto Hawthorne designa la modificación del comportamiento de los sujetos estudiados como consecuencia de saber que están siendo observados, independientemente de las condiciones experimentales propiamente dichas. El nombre proviene de los estudios de productividad realizados en la planta Hawthorne de Western Electric entre 1924 y 1932, donde los trabajadores mejoraban su desempeño simplemente por el hecho de ser objeto de atención, no por los cambios en las condiciones de iluminación que los investigadores manipulaban. Este efecto constituye una amenaza a la validez interna de los estudios observacionales y cuasiexperimentales porque introduce una variable de confusión difícil de aislar.",
+  q:"El efecto Hawthorne representa una amenaza a la validez interna porque introduce una variable ________ —la conciencia de ser observado— que puede explicar los cambios en el comportamiento sin que intervenga la variable manipulada por el investigador.",
+  opts:["dependiente, que el investigador mide pero no controla","confusora o espuria, no contemplada en el diseño original","moderadora, que amplifica el efecto de la variable independiente"],
+  correct:1, expl:"El efecto Hawthorne es, precisamente, una variable no planeada (confusora) que genera cambios atribuibles al acto de observar y no a la manipulación experimental; eso es exactamente lo que amenaza la validez interna."
+},
+{
+  id:7, sub:"1.1", label:"Comprensión lectora – Ámbito de estudio", fmt:"A",
+  pTitle:"Niveles de Análisis en Ciencias Sociales",
+  passage:"Las ciencias sociales operan simultáneamente en tres niveles de análisis: micro (el individuo y sus interacciones inmediatas), meso (las organizaciones, redes y comunidades) y macro (las estructuras sociales amplias como el Estado, la economía global o la cultura). Los problemas surgen cuando se intenta explicar fenómenos propios de un nivel usando exclusivamente conceptos y datos de otro. El reduccionismo metodológico consiste en explicar fenómenos macro a partir únicamente de la psicología o las elecciones individuales; el holismo extremo, en explicar la conducta individual como mero reflejo de la estructura. Ambos extremos empobrecen el análisis.",
+  q:"¿Qué posición metodológica propone implícitamente el texto como más adecuada para las ciencias sociales?",
+  opts:["El reduccionismo metodológico, porque los fenómenos macro son en última instancia suma de elecciones individuales.","Un análisis que articule los tres niveles y reconozca que cada uno tiene lógicas que no se reducen completamente a los otros.","El holismo extremo, porque las estructuras condicionan la conducta individual de forma determinante."],
+  correct:1, expl:"El texto critica los dos extremos (reduccionismo y holismo) y señala que 'ambos empobrecen el análisis', lo que implica que la postura adecuada articula los niveles sin reducirlos entre sí."
+},
+{
+  id:8, sub:"1.1", label:"Comprensión lectora – Ámbito de estudio", fmt:"D",
+  pTitle:"Tipos de Variables y su Función en el Diseño",
+  passage:"En investigación experimental y cuasiexperimental, las variables se clasifican según su función en el diseño. Conocer esa función es indispensable para construir hipótesis precisas y elegir los análisis estadísticos adecuados.",
+  q:"Relaciona cada tipo de variable con su función en el diseño de investigación.",
+  leftItems:["Variable independiente","Variable dependiente","Variable mediadora"],
+  rightItems:["Mecanismo o proceso a través del cual la variable independiente genera su efecto sobre el resultado","Resultado que se mide para detectar el efecto de la manipulación experimental","Condición que el investigador manipula o controla para observar su efecto"],
+  correctPairs:[[0,2],[1,1],[2,0]],
+  expl:"Independiente = lo que el investigador manipula; Dependiente = lo que se mide como resultado; Mediadora = el mecanismo explicativo entre causa y efecto."
+},
+{
+  id:9, sub:"1.1", label:"Comprensión lectora – Ámbito de estudio", fmt:"B",
+  pTitle:"Triangulación Metodológica",
+  passage:"La triangulación metodológica consiste en utilizar múltiples métodos, fuentes de datos, investigadores o marcos teóricos para estudiar un mismo fenómeno. Su propósito no es confirmar los resultados obtenidos por un solo método, sino detectar las limitaciones específicas de cada uno y alcanzar una comprensión más compleja del objeto de estudio. La convergencia de resultados entre métodos distintos aumenta la credibilidad de los hallazgos; la divergencia, en cambio, no indica error sino que revela dimensiones distintas del fenómeno que cada método captura de manera diferencial.",
+  q:"Según el texto, cuando la triangulación produce resultados divergentes entre métodos, esto no indica un error de diseño sino que ________ del fenómeno estudiado que cada método capta de forma parcial.",
+  opts:["confirma la irrelevancia de los métodos cualitativos","revela dimensiones distintas","muestra la necesidad de un único método de referencia"],
+  correct:1, expl:"El texto es explícito: la divergencia 'no indica error sino que revela dimensiones distintas del fenómeno'; cada método tiene una perspectiva parcial y complementaria."
+},
+{
+  id:10, sub:"1.1", label:"Comprensión lectora – Ámbito de estudio", fmt:"A",
+  pTitle:"Ética en Investigación con Seres Humanos",
+  passage:"El principio de beneficencia en investigación no se limita a 'no hacer daño' (primum non nocere), sino que impone la obligación activa de maximizar los beneficios y minimizar los riesgos para los participantes. Sin embargo, en investigación con poblaciones vulnerables —menores, personas privadas de libertad, comunidades en situación de pobreza extrema— la relación entre beneficio individual y beneficio social se vuelve especialmente tensa: un estudio puede beneficiar a la sociedad en su conjunto al tiempo que expone a riesgos específicos a quienes menos pueden resistirlos. El Informe Belmont (1979) respondió a esta tensión añadiendo el principio de justicia: los beneficios y los riesgos de la investigación deben distribuirse equitativamente.",
+  q:"¿Por qué el principio de justicia del Informe Belmont no es simplemente redundante con el principio de beneficencia?",
+  opts:["Porque la justicia se refiere a la calidad técnica del diseño de investigación, mientras que la beneficencia se refiere al consentimiento.","Porque la beneficencia puede maximizar el beneficio agregado sin reparar en que los riesgos recaigan desproporcionadamente sobre los grupos más vulnerables, mientras la justicia exige distribución equitativa.","Porque el Informe Belmont aplica la justicia solo a estudios con financiamiento público, no privado."],
+  correct:1, expl:"La distinción es conceptualmente precisa: la beneficencia puede satisfacerse con una lógica utilitaria que ignore la distribución de riesgos; la justicia agrega la dimensión distributiva, que impide que los vulnerables asuman cargas para beneficio de otros."
+},
+{
+  id:11, sub:"1.1", label:"Comprensión lectora – Ámbito de estudio", fmt:"C",
+  pTitle:"Estructura de un Artículo Científico (formato IMRYD)",
+  passage:"El formato IMRYD (Introducción, Métodos, Resultados y Discusión) es el estándar internacional para la comunicación de investigaciones empíricas. Cada sección cumple una función retórico-epistémica distinta en la construcción del argumento científico.",
+  q:"Ordena las secciones del artículo científico formato IMRYD en su secuencia correcta.",
+  items:["Discusión: interpretación, limitaciones y proyecciones","Métodos: descripción replicable del procedimiento","Introducción: contexto, problema y objetivos","Resultados: presentación de datos sin interpretación"],
+  correctOrder:[2,1,3,0],
+  expl:"Secuencia IMRYD: Introducción → Métodos → Resultados → Discusión. Cada sección tiene un propósito distinto y deben presentarse en este orden para que el argumento sea reproducible y evaluable."
+},
+{
+  id:12, sub:"1.1", label:"Comprensión lectora – Ámbito de estudio", fmt:"B",
+  pTitle:"Saturación Teórica en Investigación Cualitativa",
+  passage:"En investigación cualitativa, el criterio de saturación teórica reemplaza al criterio estadístico de tamaño muestral. Se alcanza la saturación cuando la incorporación de nuevos casos, entrevistas u observaciones ya no aporta categorías, propiedades o relaciones teóricas nuevas al análisis. En términos prácticos, la saturación es un criterio dinámico: el investigador debe continuar recolectando datos hasta que llegue al punto en que añadir más participantes no modifica su comprensión del fenómeno. Este criterio es metodológicamente exigente porque requiere que el investigador esté simultáneamente recolectando y analizando.",
+  q:"La saturación teórica es un criterio que determina cuándo detener la recolección de datos al alcanzarse el punto en que nuevos casos ya no ________ al marco de categorías emergentes.",
+  opts:["aplican los instrumentos cuantitativos diseñados","aportan información conceptual nueva","superan el umbral estadístico de representatividad"],
+  correct:1, expl:"La saturación ocurre cuando nuevos casos no aportan categorías ni relaciones teóricas nuevas; es un criterio conceptual, no estadístico."
+},
+
+// ═══════════════════════════════════════════════════════
+// 1.2 COMPRENSIÓN LECTORA – ÁMBITO LITERARIO (12 Qs)
+// ═══════════════════════════════════════════════════════
+{
+  id:13, sub:"1.2", label:"Comprensión lectora – Ámbito literario", fmt:"A",
+  pTitle:"El Cronotopo de Bajtín",
+  passage:"Mijail Bajtín introdujo el concepto de cronotopo para describir la interconexión esencial del tiempo y el espacio en la narrativa literaria. El cronotopo no es un mero 'escenario donde transcurre la acción', sino la forma en que las relaciones temporales y espaciales se configuran para producir sentido. En la novela de aventuras griega, el cronotopo es el del 'tiempo de aventura': el tiempo no transcurre ni deja huellas en los personajes; en la novela realista del siglo XIX, el cronotopo fusiona el tiempo histórico con el espacio social concreto, de modo que el personaje se convierte en producto y producto de su época. La elección de un cronotopo no es decorativa: determina qué tipos de personajes son posibles, qué conflictos pueden surgir y qué transformaciones son narrativamente coherentes.",
+  q:"¿Qué afirmación sobre el concepto de cronotopo es incompatible con la descripción de Bajtín en el texto?",
+  opts:["El cronotopo determina qué tipos de transformaciones son coherentes en una narrativa.","El cronotopo es fundamentalmente un recurso decorativo que el autor elige por preferencias estéticas.","El cronotopo de la novela griega de aventuras implica un tiempo que no modifica a los personajes."],
+  correct:1, expl:"El texto afirma explícitamente que 'la elección de un cronotopo no es decorativa'; atribuirle carácter meramente decorativo contradice la definición de Bajtín, para quien el cronotopo tiene función productora de sentido."
+},
+{
+  id:14, sub:"1.2", label:"Comprensión lectora – Ámbito literario", fmt:"D",
+  pTitle:"Modos de Focalización Narrativa (Genette)",
+  passage:"Gérard Genette distinguió entre focalización cero (narrador omnisciente que sabe más que cualquier personaje), focalización interna (el relato se filtra exclusivamente a través de la conciencia de un personaje) y focalización externa (el narrador sabe menos que el personaje, describiendo solo lo observable desde fuera). Cada tipo produce efectos cognitivos y emocionales distintos en el lector.",
+  q:"Relaciona cada tipo de focalización con el efecto narrativo que produce.",
+  leftItems:["Focalización cero (omnisciente)","Focalización interna","Focalización externa"],
+  rightItems:["Crea distancia e incertidumbre: el lector infiere la vida interior del personaje desde el comportamiento observable","Produce identificación e inmersión al limitar el conocimiento al de un personaje específico","Otorga al narrador el privilegio de acceder a pensamientos, motivaciones y pasados de todos los personajes"],
+  correctPairs:[[0,2],[1,1],[2,0]],
+  expl:"Omnisciente = acceso total a todas las mentes; Interna = inmersión en una conciencia específica; Externa = distancia behaviorista que genera incertidumbre sobre la vida interior."
+},
+{
+  id:15, sub:"1.2", label:"Comprensión lectora – Ámbito literario", fmt:"B",
+  pTitle:"La Digresión en el Ensayo Literario",
+  passage:"La digresión es, en el ensayo literario, un procedimiento compositivo deliberado: el autor abandona temporalmente el hilo argumentativo principal para explorar un tema lateral, un recuerdo personal o una asociación inesperada, con la confianza de que ese rodeo enriquecerá la tesis central al iluminarla desde un ángulo oblicuo. A diferencia de la digresión en los textos académicos, donde constituye un defecto que dispersa el argumento, en el ensayo literario la digresión es constitutiva del género: el pensamiento ensayístico es, por definición, exploratorio y no teleológico. Montaigne, padre del ensayo, hizo de la digresión una forma de honestidad intelectual: el pensamiento que no divaga nunca se aleja lo suficiente de sus premisas para cuestionarlas.",
+  q:"Según el texto, la diferencia entre la digresión en un texto académico y en un ensayo literario radica en que en el ensayo la digresión no es un defecto sino un procedimiento ________ del género, constitutivo de su modo de pensar.",
+  opts:["accesorio y prescindible","inherente y definitorio","formal y estandarizado"],
+  correct:1, expl:"El texto dice que 'en el ensayo literario la digresión es constitutiva del género'; 'constitutiva' es sinónimo de 'inherente y definitoria', no de accesoria ni de estandarizada."
+},
+{
+  id:16, sub:"1.2", label:"Comprensión lectora – Ámbito literario", fmt:"A",
+  pTitle:"El Realismo Mágico: Definición y Controversias",
+  passage:"El realismo mágico ha sido definido de tantas maneras que la etiqueta corre el riesgo de vaciar su propio contenido. La definición más rigurosa —la de Ángel Rama y Antonio Cornejo Polar, entre otros— lo distingue de la literatura fantástica en un punto crucial: en el realismo mágico, lo sobrenatural no irrumpe desde fuera del mundo representado como elemento perturbador; está integrado en la cosmovisión de los personajes y de la comunidad narrada como una dimensión normal de lo real. En Cien años de soledad, la levitación del padre Nicanor o los espíritus que habitan Macondo no son percibidos como milagros por los habitantes; son hechos ordinarios dentro de una ontología que no separa lo visible de lo invisible. El efecto de extrañeza lo experimenta el lector, no los personajes.",
+  q:"¿Cuál es el criterio que distingue al realismo mágico de la literatura fantástica según la definición citada en el texto?",
+  opts:["En el realismo mágico los fenómenos sobrenaturales provienen de culturas indígenas o afrolatinas, mientras que en la fantasía son de origen europeo.","En el realismo mágico lo sobrenatural es vivido como normal por los personajes dentro de su cosmovisión, mientras que en la fantasía irrumpe como elemento perturbador desde fuera del mundo representado.","En el realismo mágico el narrador confirma la realidad de los hechos sobrenaturales; en la fantasía, los deja en ambigüedad."],
+  correct:1, expl:"El texto establece explícitamente este criterio: en el realismo mágico lo sobrenatural está 'integrado en la cosmovisión' como dimensión normal; el extrañamiento lo siente el lector, no los personajes. La fantasía opera al revés: lo sobrenatural 'irrumpe desde fuera como elemento perturbador'."
+},
+{
+  id:17, sub:"1.2", label:"Comprensión lectora – Ámbito literario", fmt:"C",
+  pTitle:"Estructura de la Tragedia Clásica (Aristóteles)",
+  passage:"En la Poética, Aristóteles describe la estructura ideal de la tragedia como una cadena causal que va de la situación inicial de bienestar del héroe a su caída, producida por la hamartía (error o defecto trágico) y culminada en el reconocimiento (anagnórisis) y el cambio de fortuna (peripecia).",
+  q:"Ordena los elementos de la estructura trágica aristotélica en su secuencia dramática correcta.",
+  items:["Hamartía: error o defecto del héroe que desencadena la caída","Anagnórisis: el héroe reconoce su error o la verdad oculta","Situación inicial de bienestar y honor del héroe trágico","Peripecia: inversión radical de la fortuna del héroe"],
+  correctOrder:[2,0,3,1],
+  expl:"La secuencia aristotélica es: Situación de bienestar → Hamartía (error) → Peripecia (caída) → Anagnórisis (reconocimiento). El reconocimiento llega tarde, cuando el daño ya es irreversible."
+},
+{
+  id:18, sub:"1.2", label:"Comprensión lectora – Ámbito literario", fmt:"A",
+  pTitle:"La Intertextualidad como Condición del Texto",
+  passage:"Julia Kristeva, retomando y transformando las ideas de Bajtín sobre el dialogismo, formuló el concepto de intertextualidad: todo texto es una absorción y transformación de otros textos; no existe el texto virginal, aislado de la tradición. Esta no es una observación sobre las 'influencias' que un autor recibe —categoría que supone un sujeto creador originario— sino una tesis sobre la condición del lenguaje mismo: el texto es siempre un mosaico de citas, conscientes o no, porque el lenguaje es heredado, no inventado. La consecuencia teórica más radical es que el origen o la intención del autor no pueden fijar el sentido del texto, pues este se produce en la intersección de múltiples textualidades previas y posteriores.",
+  q:"¿En qué sentido la intertextualidad de Kristeva es más radical que el concepto de 'influencia' literaria?",
+  opts:["Porque la intertextualidad estudia solo las citas explícitas y las referencias conscientes, mientras que la influencia incluye las inconscientes.","Porque la intertextualidad no presupone un sujeto creador originario que 'recibe' influencias, sino que sostiene que el lenguaje mismo es siempre ya un tejido de textos anteriores.","Porque la intertextualidad limita el análisis al siglo XX, mientras que la influencia aplica a toda la historia literaria."],
+  correct:1, expl:"El texto explica la distinción con precisión: la 'influencia' supone un autor-origen que recibe; la intertextualidad niega ese origen y afirma que el lenguaje es constitutivamente intertextual, independientemente de la voluntad del autor."
+},
+{
+  id:19, sub:"1.2", label:"Comprensión lectora – Ámbito literario", fmt:"B",
+  pTitle:"La Lírica Moderna y la Ruptura con el Yo Romántico",
+  passage:"El modernismo y las vanguardias del siglo XX pusieron en crisis el supuesto romántico de que el poema es expresión directa del yo del poeta. T.S. Eliot formuló la teoría de la 'impersonalidad poética': el poema no es un derrame emocional del yo, sino una 'huida de la personalidad'. La emoción que el poema transmite es una emoción construida por el texto, no trasvasada desde el interior del autor. Eliot propuso el 'correlato objetivo' como técnica para conseguirlo: en lugar de enunciar una emoción directamente, el poeta construye un objeto, una situación o una cadena de eventos que sea el equivalente objetivo de esa emoción en el lector, sin nombrarla.",
+  q:"El correlato objetivo, según Eliot, es una técnica que sustituye la enunciación directa de la emoción por la construcción de un objeto o situación que actúa como su ________ en la experiencia del lector.",
+  opts:["origen biográfico y equivalente autobiográfico","equivalente objetivo capaz de suscitarla sin nombrarla","símbolo universal de la tradición clásica"],
+  correct:1, expl:"El texto define el correlato objetivo exactamente como la técnica que evita nombrar la emoción y la sustituye por un objeto o situación que la suscita en el lector; 'equivalente objetivo que la suscita sin nombrarla' es la paráfrasis más precisa."
+},
+{
+  id:20, sub:"1.2", label:"Comprensión lectora – Ámbito literario", fmt:"D",
+  pTitle:"Géneros Discursivos del Ámbito Literario",
+  passage:"La teoría literaria distingue entre el género como contrato de lectura, como forma composicional y como horizonte de expectativas. Conocer los rasgos formales y pragmáticos de cada género es imprescindible para analizar los efectos que produce su subversión.",
+  q:"Relaciona cada subgénero con su rasgo formal más definitorio.",
+  leftItems:["Cuento","Novela corta o nouvelle","Microrrelato"],
+  rightItems:["Brevedad extrema que exige economía absoluta del lenguaje y un final de alta densidad semántica","Extensión media que permite desarrollar un conflicto central sin las subtramas ni la densidad psicológica de la novela","Unidad de efecto: todos sus elementos están orientados a producir una sola impresión dominante en el lector"],
+  correctPairs:[[0,2],[1,1],[2,0]],
+  expl:"Cuento = unidad de efecto (Poe); Nouvelle = extensión media y conflicto único sin subtramas; Microrrelato = brevedad extrema con alta densidad semántica."
+},
+{
+  id:21, sub:"1.2", label:"Comprensión lectora – Ámbito literario", fmt:"A",
+  pTitle:"El Simbolismo y la Autonomía del Lenguaje Poético",
+  passage:"Los poetas simbolistas franceses de la segunda mitad del siglo XIX —Baudelaire, Verlaine, Mallarmé— proclamaron que la poesía no debía nombrar las cosas, sino sugerirlas; no describir, sino evocar. La palabra poética, para Mallarmé, no designa objetos del mundo sino que crea un mundo propio a través de sus resonancias sonoras, sus connotaciones y sus relaciones con otras palabras en el poema. Esta autonomía del lenguaje poético supone un giro epistemológico: el poema no es un vehículo de significados previos al texto sino el lugar donde esos significados se generan. La consecuencia es que la oscuridad del poema simbolista no es un defecto ni un exceso retórico, sino una exigencia del ideal de suggestión: decir demasiado claro destruiría el trabajo de evocación.",
+  q:"¿Por qué la oscuridad del poema simbolista es, según el texto, una exigencia y no un defecto?",
+  opts:["Porque los simbolistas rechazaban al lector no iniciado en la tradición clásica.","Porque la claridad excesiva destruiría la sugerencia, que es el principio productivo del significado en el poema simbolista.","Porque Mallarmé creía que la poesía solo podía ser comprendida en su traducción al inglés."],
+  correct:1, expl:"El argumento del texto es preciso: la oscuridad es funcional al ideal simbolista de 'sugerencia'; 'decir demasiado claro destruiría el trabajo de evocación', es decir, la oscuridad es condición de posibilidad de la experiencia poética simbolista."
+},
+{
+  id:22, sub:"1.2", label:"Comprensión lectora – Ámbito literario", fmt:"B",
+  pTitle:"La Novela Policial y el Contrato Genérico",
+  passage:"La novela policial clásica —cuyo modelo es el detective racional de Poe y Conan Doyle— establece con el lector un contrato implícito basado en la igualdad de información: el lector y el detective tienen acceso a las mismas pistas, y la resolución del misterio debe derivarse lógicamente de esas pistas, no de información withholded arbitrariamente. El lector juega contra el detective. La novela policial hardboiled o negra rompe este contrato: el detective no resuelve el crimen mediante la deducción lógica sino mediante la acción, la violencia y el azar; la sociedad que describe no es ordenable por la razón sino constitutivamente corrupta. El interés se desplaza del 'quién lo hizo' (whodunit) al 'cómo funciona el mundo que hace posible este crimen'.",
+  q:"En la novela policial hardboiled, el desplazamiento del 'quién lo hizo' a 'cómo funciona el mundo' implica que el género abandona el contrato lógico-deductivo para adoptar una función ________ de la sociedad representada.",
+  opts:["celebratoria y legitimadora","crítica y diagnóstica","evasiva y escapista"],
+  correct:1, expl:"Al desplazar la pregunta del crimen individual a la estructura social que lo hace posible, el hardboiled no resuelve el problema (como el clásico) sino que lo diagnostica; eso es una función crítica, no celebratoria ni evasiva."
+},
+{
+  id:23, sub:"1.2", label:"Comprensión lectora – Ámbito literario", fmt:"C",
+  pTitle:"Evolución del Teatro Latinoamericano del Siglo XX",
+  passage:"El teatro latinoamericano del siglo XX atravesó transformaciones radicales en sus convenciones formales, sus vínculos con el Estado y su relación con el público, pasando del naturalismo heredado del XIX a formas de ruptura vanguardista y compromiso político.",
+  q:"Ordena las corrientes del teatro latinoamericano del siglo XX de más antigua a más reciente.",
+  items:["Teatro del Absurdo y experimentación formal (décadas de 1960–70)","Teatro político y de creación colectiva (décadas de 1970–80)","Naturalismo y drama burgués de influencia europea (primer tercio del siglo)","Posdrama y performance contemporánea (desde 1990)"],
+  correctOrder:[2,0,1,3],
+  expl:"El orden cronológico es: Naturalismo/drama burgués → Teatro del Absurdo/experimental → Teatro político/creación colectiva → Posdrama/performance."
+},
+{
+  id:24, sub:"1.2", label:"Comprensión lectora – Ámbito literario", fmt:"A",
+  pTitle:"La Muerte del Autor (Barthes)",
+  passage:"En su célebre ensayo de 1967, Roland Barthes proclamó la 'muerte del autor': el acto de escritura destruye toda voz original, pues en cuanto el autor escribe queda reemplazado por el lenguaje mismo, que habla sin persona. La figura del Autor-Dios —que fija el sentido definitivo de su obra— es un producto de la modernidad burguesa que la crítica debe desechar para dar vida a una instancia olvidada: el Lector. Para Barthes, el nacimiento del lector se paga con la muerte del autor. Esta no es una afirmación biográfica sino teórica: el autor como fuente de autoridad interpretativa pierde su prerrogativa en favor de un texto cuyo sentido se produce en el acto de lectura.",
+  q:"¿En qué sentido afirma Barthes que el 'nacimiento del lector se paga con la muerte del autor'?",
+  opts:["En el sentido de que los lectores contemporáneos ignoran la biografía de los autores clásicos.","En el sentido de que reconocer al lector como productor de sentido implica retirarle al autor la autoridad de fijar el significado definitivo de su texto.","En el sentido de que los autores deben publicar de forma anónima para que sus textos sean leídos sin prejuicios."],
+  correct:1, expl:"Barthes no habla de ignorar la biografía ni del anonimato; su argumento es teórico: la autoridad interpretativa es finita, y concederla al lector (como productor de sentido) significa retirarla al autor (como fuente de significado estable)."
+},
+
+// ═══════════════════════════════════════════════════════
+// 1.3 COMPRENSIÓN LECTORA – PARTICIPACIÓN SOCIAL (6 Qs)
+// ═══════════════════════════════════════════════════════
+{
+  id:25, sub:"1.3", label:"Comprensión lectora – Ámbito de participación social", fmt:"A",
+  pTitle:"La Democracia Deliberativa",
+  passage:"La democracia deliberativa, propuesta por Habermas y desarrollada por Cohen y Rawls entre otros, sostiene que la legitimidad de las decisiones colectivas no deriva del mero agregado de preferencias individuales (como en el modelo liberal-agregativo), sino de la calidad del proceso deliberativo que las precede. Una decisión es legítima si resulta de un proceso de argumentación pública en el que todos los afectados han tenido oportunidad de participar en condiciones de igualdad y sin coerción. Este modelo enfrenta la crítica de que presupone condiciones ideales de comunicación que raramente se dan en sociedades desiguales: quienes tienen más recursos materiales, educativos y simbólicos están mejor equipados para participar en la deliberación pública, lo que puede reproducir la desigualdad bajo el velo de la racionalidad discursiva.",
+  q:"¿Cuál es la crítica más estructural que enfrenta la democracia deliberativa según el texto?",
+  opts:["Que produce decisiones demasiado lentas para crisis urgentes.","Que las condiciones de igualdad que presupone raramente existen, y los más favorecidos se benefician desproporcionadamente del proceso deliberativo.","Que Habermas no desarrolló mecanismos institucionales concretos para implementarla."],
+  correct:1, expl:"La crítica citada en el texto es precisamente estructural: no es un problema de diseño sino de las condiciones materiales de la sociedad; la desigualdad se reproduce bajo el velo de la deliberación porque no todos deliberan en igualdad real de condiciones."
+},
+{
+  id:26, sub:"1.3", label:"Comprensión lectora – Ámbito de participación social", fmt:"B",
+  pTitle:"Acción Colectiva y el Dilema del Prisionero",
+  passage:"Mancur Olson demostró que grupos de individuos racionales con intereses comunes no necesariamente actúan colectivamente para defenderlos. El problema del free rider (polizón o aprovechado) consiste en que los bienes colectivos son no excludibles: quienes no contribuyen al esfuerzo colectivo de todas formas se benefician del resultado. Si cada individuo raciona que puede obtener el beneficio sin pagar el costo, la acción colectiva no emerge espontáneamente. Olson identificó dos soluciones: los incentivos selectivos (beneficios disponibles solo para quienes participan) y la coerción (obligar a contribuir, como en los impuestos). En ausencia de ambos, los grupos grandes tenderán a la subprovisión del bien colectivo aunque todos sus miembros lo deseen.",
+  q:"Según Olson, el problema del free rider existe porque los bienes colectivos son no excludibles: el individuo racional calcula que puede ________ sin contribuir al esfuerzo colectivo.",
+  opts:["ser sancionado formalmente por las instituciones","obtener el beneficio igual que los que sí participaron","desarrollar mayor capacidad organizativa que el grupo"],
+  correct:1, expl:"El free rider se beneficia del bien colectivo (no excludible) sin pagar el costo; esa es exactamente la lógica: puede 'obtener el beneficio igual que quienes sí participaron'."
+},
+{
+  id:27, sub:"1.3", label:"Comprensión lectora – Ámbito de participación social", fmt:"D",
+  pTitle:"Mecanismos de Democracia Directa en México",
+  passage:"La reforma constitucional de 2019 en México amplió los instrumentos de democracia directa disponibles para la ciudadanía, cada uno con umbrales de activación, carácter vinculante o consultivo, y materias sobre las que puede ejercerse distintos.",
+  q:"Relaciona cada mecanismo de democracia directa con su característica jurídica principal en el sistema mexicano.",
+  leftItems:["Consulta popular","Revocación de mandato","Iniciativa ciudadana"],
+  rightItems:["Permite a la ciudadanía presentar proyectos de ley ante el Congreso cumpliendo el porcentaje de firmas requerido","Mecanismo para que la ciudadanía se pronuncie sobre actos o decisiones del Ejecutivo Federal de trascendencia nacional","Proceso mediante el cual la ciudadanía puede remover al titular del Ejecutivo federal antes de que concluya su mandato"],
+  correctPairs:[[0,1],[1,2],[2,0]],
+  expl:"Consulta popular = pronunciamiento ciudadano sobre actos del Ejecutivo; Revocación = remoción anticipada del titular del Ejecutivo; Iniciativa ciudadana = presentación de proyectos de ley con porcentaje de firmas."
+},
+{
+  id:28, sub:"1.3", label:"Comprensión lectora – Ámbito de participación social", fmt:"A",
+  pTitle:"El Principio de Máxima Publicidad",
+  passage:"El principio de máxima publicidad, consagrado en la Ley General de Transparencia de México, establece que toda información en posesión de los sujetos obligados es pública por defecto y que la reserva o confidencialidad son excepciones que deben justificarse. Esto invierte la lógica burocrática tradicional, donde el secreto era la norma y la divulgación la excepción. El principio impone al Estado la carga de la prueba: es la autoridad quien debe demostrar que determinada información merece resguardarse, no el ciudadano quien debe justificar por qué quiere acceder a ella. Este cambio de paradigma tiene consecuencias institucionales profundas: diseñar sistemas de archivos, entrenar servidores públicos y crear órganos garantes especializados.",
+  q:"¿Cuál es el cambio de paradigma más profundo que introduce el principio de máxima publicidad según el texto?",
+  opts:["Que todas las solicitudes de información deben responderse en menos de 20 días hábiles.","Que la carga de la prueba se invierte: es el Estado quien debe justificar la reserva, no el ciudadano quien debe justificar su solicitud.","Que los ciudadanos ahora pueden revisar todos los archivos físicos de las dependencias sin restricción."],
+  correct:1, expl:"El texto describe exactamente este cambio: de 'el secreto como norma y la divulgación como excepción' a 'toda información es pública por defecto'; la consecuencia es que el Estado asume la carga de probar que algo debe reservarse."
+},
+{
+  id:29, sub:"1.3", label:"Comprensión lectora – Ámbito de participación social", fmt:"C",
+  pTitle:"Ciclo de las Políticas Públicas",
+  passage:"El análisis de políticas públicas conceptualiza su desarrollo como un ciclo que va de la identificación del problema hasta la evaluación de resultados, con varias etapas intermedias que implican actores, recursos e instrumentos distintos.",
+  q:"Ordena las etapas del ciclo de las políticas públicas en su secuencia correcta.",
+  items:["Evaluación de resultados e impacto de la política","Diseño e implementación de la política","Inclusión del problema en la agenda pública","Identificación y definición del problema social"],
+  correctOrder:[3,2,1,0],
+  expl:"El ciclo es: Identificación del problema → Inclusión en la agenda pública → Diseño e implementación → Evaluación de resultados. La identificación precede a la agenda; la evaluación cierra el ciclo."
+},
+{
+  id:30, sub:"1.3", label:"Comprensión lectora – Ámbito de participación social", fmt:"B",
+  pTitle:"Capital Social y Democracia",
+  passage:"Robert Putnam argumentó que la calidad de la democracia depende en parte del capital social: las redes de confianza, reciprocidad y normas de cooperación que emergen de la vida asociativa. Sociedades con alto capital social —donde los ciudadanos participan en asociaciones cívicas, practican la confianza interpersonal y resuelven problemas colectivamente— producen instituciones democráticas más eficaces y estables. Sin embargo, la relación causal es debatida: no está claro si el capital social produce buenas instituciones o si son las buenas instituciones las que generan capital social. El debate tiene implicaciones de política pública: si el capital social es la causa, habría que intervenir en la sociedad civil; si las instituciones son la causa, habría que reformar primero el Estado.",
+  q:"Según el texto, la ambigüedad sobre la dirección de la causalidad entre capital social e instituciones democráticas tiene implicaciones de política pública porque determina si la intervención debe orientarse hacia ________ o hacia la reforma institucional del Estado.",
+  opts:["la supresión de las organizaciones clientelares","el fortalecimiento de la sociedad civil y sus redes asociativas","la reducción del gasto público en programas sociales"],
+  correct:1, expl:"El texto establece las dos opciones según la causalidad: si el capital social es la causa, se interviene en 'la sociedad civil'; si las instituciones son la causa, se reforma el Estado. La opción correcta parafrasea la primera rama."
+},
+
+// ═══════════════════════════════════════════════════════
+// 2.1 REDACCIÓN INDIRECTA – ÁMBITO DE ESTUDIO (15 Qs)
+// ═══════════════════════════════════════════════════════
+{
+  id:31, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"A",
+  pTitle:"Conectores de Causalidad vs. Consecutivos",
+  passage:"Los conectores causales introducen la causa de lo que se ha enunciado anteriormente ('porque', 'ya que', 'puesto que', 'dado que'), mientras que los conectores consecutivos introducen la consecuencia ('por lo tanto', 'en consecuencia', 'de ahí que', 'de modo que'). La confusión entre ambos genera errores de coherencia local que alteran la dirección argumentativa del texto: enunciar como causa lo que es consecuencia, o viceversa, produce razonamientos circulares o inválidos.",
+  q:"En el enunciado 'Los datos son insuficientes, ________ no es posible establecer conclusiones generalizables', el espacio en blanco debe llenarse con un conector ________.",
+  opts:["causal, porque introduce la razón de que los datos sean insuficientes","consecutivo, porque introduce la consecuencia que se deriva de la insuficiencia de datos","de reformulación, porque precisa el alcance de la afirmación anterior"],
+  correct:1, expl:"La insuficiencia de datos es la causa; la imposibilidad de generalizar es la consecuencia. Un conector consecutivo ('por lo tanto', 'en consecuencia') enlaza correctamente la causa ya enunciada con la consecuencia que se introduce."
+},
+{
+  id:32, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"B",
+  pTitle:"La Coherencia Pragmática del Texto Académico",
+  passage:"La coherencia de un texto académico no es solo semántica (que las ideas estén relacionadas entre sí) sino también pragmática: cada enunciado debe cumplir una función argumentativa reconocible (tesis, argumento, evidencia, objeción, refutación, conclusión). Un texto puede ser semánticamente coherente —sus ideas se relacionan temáticamente— pero pragmáticamente incoherente si, por ejemplo, una evidencia aparece antes de que se haya enunciado la tesis que pretende sostener, o si una conclusión no deriva de los argumentos presentados sino de una premisa implícita no explicitada.",
+  q:"Un texto que presenta primero la evidencia y después la tesis que esa evidencia debería sostener puede ser semánticamente coherente pero ________ incoherente, porque las funciones argumentativas no aparecen en el orden que permite al lector seguir el razonamiento.",
+  opts:["fonológica y ortográficamente","pragmáticamente","estilísticamente"],
+  correct:1, expl:"El texto define precisamente la 'coherencia pragmática' como la correcta secuenciación de las funciones argumentativas; una tesis que aparece después de su evidencia es una falla de coherencia pragmática, no semántica ni estilística."
+},
+{
+  id:33, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"D",
+  pTitle:"Tipos de Citas en Textos Académicos",
+  passage:"El manejo correcto de las fuentes exige distinguir entre modalidades de cita que difieren en su grado de fidelidad al texto original y en las convenciones tipográficas que las regulan. El error en la modalidad de cita puede constituir plagio, aunque sea involuntario.",
+  q:"Relaciona cada modalidad de cita con su definición y uso correcto.",
+  leftItems:["Cita textual directa","Paráfrasis","Cita de segunda mano"],
+  rightItems:["Reproducción de las palabras de una fuente que el autor no ha consultado directamente, indicando la fuente original","Reproducción literal de las palabras de otro autor, entre comillas y con indicación de página","Reformulación del contenido de una fuente en las propias palabras del autor, sin comillas pero con referencia"],
+  correctPairs:[[0,1],[1,2],[2,0]],
+  expl:"Cita textual = reproducción literal entre comillas con página; Paráfrasis = reformulación sin comillas con referencia; Cita de segunda mano = fuente no consultada directamente."
+},
+{
+  id:34, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"A",
+  pTitle:"Uso del Gerundio: Restricciones Normativas",
+  passage:"El gerundio admite varias funciones en español: como modificador adverbial de modo, tiempo o condición ('Caminando aprendo más'), como parte de perífrasis verbales ('Estoy revisando el informe') y como modificador de ciertas formas de 'llevar' o 'seguir'. Sin embargo, la norma proscribe el gerundio predicativo que modifica un sustantivo como si fuera adjetivo ('*Se publicó una ley regulando el sector'), excepto cuando expresa una acción simultánea o inmediatamente posterior al verbo principal. El gerundio de posteridad ('*Se firmó el acuerdo, estableciéndose nuevas condiciones') y el gerundio especificativo de sustantivo son los usos más frecuentemente censurados en el registro formal escrito.",
+  q:"¿Cuál de los siguientes enunciados incurre en un uso censurable del gerundio en el registro formal escrito?",
+  opts:["La directora llegó corriendo al auditorio antes de que comenzara la sesión.","Se emitió un decreto modificando los criterios de elegibilidad del programa.","El equipo continuó trabajando en el informe durante toda la tarde."],
+  correct:1, expl:"'Modificando los criterios' es un gerundio especificativo de sustantivo ('decreto') usado como adjetivo relativo; la norma proscribe este uso y exige la oración de relativo: 'un decreto que modifica' o 'que modificó'. Las otras opciones usan gerundios de modo y de perífrasis verbal, que son correctos."
+},
+{
+  id:35, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"C",
+  pTitle:"Estructura Retórica del Párrafo de Argumentación Académica",
+  passage:"El párrafo académico de argumentación no solo expone sino que convence. Su estructura retórica debe anticipar la objeción más fuerte contra la tesis y refutarla, lo que lo distingue del párrafo meramente expositivo.",
+  q:"Ordena los componentes del párrafo argumentativo académico en su secuencia retórica más sólida.",
+  items:["Enunciación y refutación de la objeción más relevante","Oración temática: afirmación de la tesis del párrafo","Evidencia empírica o cita que sustenta la tesis","Oración de cierre que proyecta hacia la siguiente idea"],
+  correctOrder:[1,2,0,3],
+  expl:"Secuencia retórica óptima: Oración temática (tesis del párrafo) → Evidencia que la sustenta → Enunciación y refutación de la objeción → Cierre que proyecta. Refutar la objeción antes del cierre fortalece la posición."
+},
+{
+  id:36, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"B",
+  pTitle:"Deixis y Cohesión Textual",
+  passage:"La deixis es el mecanismo lingüístico que ancla los enunciados a sus condiciones de enunciación: quién habla (deixis personal: yo/tú), dónde (deixis espacial: aquí/allá) y cuándo (deixis temporal: ahora/entonces). En los textos escritos, especialmente los académicos, la deixis textual o anafórica es especialmente relevante: los pronombres, demostrativos y adverbios referenciales permiten retomar elementos ya mencionados ('este hallazgo', 'dicho principio', 'los autores antes citados') creando cadenas de cohesión que evitan la repetición y mantienen el hilo temático. El error más frecuente es la ambigüedad referencial: cuando el pronombre o demostrativo puede remitir a más de un antecedente.",
+  q:"La ambigüedad referencial en un texto académico ocurre cuando un pronombre o demostrativo puede remitir a más de un antecedente, lo que interrumpe la ________ textual y obliga al lector a decodificar el texto en lugar de seguir el argumento.",
+  opts:["extensión semántica","cohesión anafórica","progresión temática lineal"],
+  correct:1, expl:"El texto describe la deixis textual y los pronombres como mecanismos de 'cohesión'; la ambigüedad referencial interrumpe precisamente la 'cohesión anafórica' (las cadenas de referencia que mantienen unido el texto)."
+},
+{
+  id:37, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"A",
+  pTitle:"El Subjuntivo en la Argumentación Académica",
+  passage:"El modo subjuntivo en español no solo expresa duda o deseo; en el registro académico tiene funciones epistémicas precisas. En oraciones sustantivas dependientes de verbos de valoración ('es importante que', 'es necesario que') o de verbos de comunicación con matiz dubitativo ('no está claro que', 'es cuestionable que'), el subjuntivo señala que la proposición que introduce está bajo el alcance semántico de la valoración o la duda del enunciador. En cambio, con verbos de certeza ('es evidente que', 'se ha demostrado que') se usa el indicativo porque el enunciador presenta la proposición como un hecho establecido. El error de selección modal en textos académicos no es solo gramatical: altera el grado de compromiso epistémico del autor con lo que afirma.",
+  q:"En el enunciado 'Es cuestionable que los datos obtenidos [ser / son / sean] representativos del universo estudiado', ¿qué forma verbal es la correcta y por qué?",
+  opts:["'son', porque expresa una certeza sobre los datos que el investigador ha verificado.","'sean', porque el verbo 'es cuestionable' expresa valoración dubitativa y exige subjuntivo para indicar que la proposición está bajo el alcance de esa duda.","'ser', porque el infinitivo en subordinadas sustantivas siempre es válido en el registro formal."],
+  correct:1, expl:"'Es cuestionable' es un verbo de valoración con matiz dubitativo; según el texto, estos verbos exigen subjuntivo porque señalan que la proposición está 'bajo el alcance semántico de la valoración o duda'. 'sean' es el subjuntivo presente correcto."
+},
+{
+  id:38, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"B",
+  pTitle:"La Tilde Diacrítica: Casos Complejos",
+  passage:"La tilde diacrítica distingue pares de palabras gráficamente idénticas con distintas categorías gramaticales y funciones. La RAE eliminó en 2010 la tilde de 'solo' (adverbio vs. adjetivo) y de los demostrativos ('este', 'ese', 'aquel') cuando funcionan como pronombres, al considerar que el contexto basta para desambiguar. Sin embargo, mantuvo la tilde diacrítica en pares donde la ambigüedad semántica es real y no resoluble por contexto: 'sé' (saber/ser) vs. 'se' (pronombre); 'más' (adverbio de cantidad) vs. 'mas' (conjunción adversativa equivalente a 'pero'); 'aún' (todavía) vs. 'aun' (incluso); 'té' (bebida) vs. 'te' (pronombre). La tendencia normativa es a reducir las tildes diacríticas al mínimo indispensable.",
+  q:"Según el texto, la RAE mantiene la tilde diacrítica en aquellos pares de palabras donde la ambigüedad semántica ________ por el contexto, pero la eliminó donde el contexto basta para distinguirlos.",
+  opts:["siempre puede resolverse","no puede resolverse","se resuelve mejor con la puntuación"],
+  correct:1, expl:"El texto es explícito: la tilde diacrítica se mantiene donde la ambigüedad 'no es resoluble por contexto'; se elimina donde el contexto basta. La opción correcta parafrasea esta condición."
+},
+{
+  id:39, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"D",
+  pTitle:"Funciones de las Notas al Pie en Texto Académico",
+  passage:"Las notas al pie cumplen funciones diferenciadas en el texto académico que van más allá de la simple referencia bibliográfica. Usadas correctamente, amplían el argumento sin interrumpir el hilo principal; usadas incorrectamente, dispersan la atención y fragmentan el razonamiento.",
+  q:"Relaciona cada tipo de nota al pie con su función en el texto académico.",
+  leftItems:["Nota de referencia bibliográfica","Nota de contenido o aclaración","Nota de remisión interna"],
+  rightItems:["Dirige al lector a otra sección del mismo texto o a una obra complementaria del mismo autor","Amplía, matiza o contextualiza una afirmación sin interrumpir el argumento principal","Indica la fuente exacta de una cita textual, paráfrasis o dato"],
+  correctPairs:[[0,2],[1,1],[2,0]],
+  expl:"Referencia bibliográfica = indica la fuente; Contenido/aclaración = amplía sin interrumpir; Remisión interna = dirige a otra parte del texto."
+},
+{
+  id:40, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"A",
+  pTitle:"Anfibología y Ambigüedad Sintáctica",
+  passage:"La anfibología es la ambigüedad producida por una construcción sintáctica que admite más de una interpretación. A diferencia de la polisemia (ambigüedad léxica, donde una misma palabra tiene varios significados), la anfibología es de naturaleza estructural: el significado de cada palabra es claro, pero su combinación produce dos o más lecturas igualmente posibles. Por ejemplo: 'La psicóloga entrevistó a la directora con el expediente' puede significar que la psicóloga tenía el expediente durante la entrevista, o que la directora lo tenía. La anfibología se corrige reordenando los elementos o desambiguando mediante una oración de relativo.",
+  q:"¿Cuál de los siguientes enunciados contiene una anfibología?",
+  opts:["Se presentaron los informes de los tres evaluadores independientes.","El director felicitó a los pasantes del proyecto que habían concluido exitosamente.","La coordinadora revisó los documentos antes de la reunión plenaria."],
+  correct:1, expl:"'que habían concluido exitosamente' puede referirse a 'los pasantes' o a 'el proyecto'; eso es una anfibología sintáctica. Las otras opciones no presentan ambigüedad estructural."
+},
+{
+  id:41, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"C",
+  pTitle:"Estructura del Marco Analítico en Textos Académicos",
+  passage:"El marco analítico de un texto académico de investigación es la articulación entre el problema, los conceptos teóricos que lo iluminan y la estrategia metodológica que permite abordarlo empíricamente.",
+  q:"Ordena los elementos del marco analítico en su secuencia lógica de construcción.",
+  items:["Selección y justificación de los conceptos teóricos pertinentes","Planteamiento del problema o pregunta de investigación","Derivación de las hipótesis o proposiciones analíticas","Descripción de la estrategia metodológica para contrastar las proposiciones"],
+  correctOrder:[1,0,2,3],
+  expl:"Secuencia: Planteamiento del problema → Selección y justificación de conceptos teóricos → Derivación de hipótesis/proposiciones → Descripción de la estrategia metodológica."
+},
+{
+  id:42, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"B",
+  pTitle:"Léxico Especializado y Nominalización Compleja",
+  passage:"El registro académico se caracteriza, entre otros rasgos, por el predominio del léxico especializado y por estructuras nominales complejas que condensan varios predicados en una sola construcción. La frase nominal 'la implementación gradual de mecanismos de supervisión interinstitucional' condensa tres predicados: 'se implementa', 'es gradual' y 'la supervisión es interinstitucional'. Esta condensación es funcionalmente eficiente en textos donde el espacio es limitado y el lector comparte el conocimiento previo; pero puede ser un obstáculo cuando el destinatario no está familiarizado con el campo. La escritura inclusiva y en lenguaje claro exige descomponer estas nominalizaciones en oraciones más simples sin sacrificar precisión.",
+  q:"La descomposición de nominalizaciones complejas en oraciones más simples, como recomienda el lenguaje claro, busca hacer el texto más accesible sin ________ la precisión conceptual de la información.",
+  opts:["ampliar ni extender","sacrificar ni comprometer","traducir ni adaptar"],
+  correct:1, expl:"El texto dice que el lenguaje claro exige descomponer las nominalizaciones 'sin sacrificar precisión'; 'sacrificar ni comprometer la precisión' es la paráfrasis exacta de esa condición."
+},
+{
+  id:43, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"A",
+  pTitle:"Concordancia en Sujetos Complejos",
+  passage:"Cuando el sujeto de una oración es una construcción nominal compleja, la concordancia verbal sigue la regla del núcleo del sintagma nominal, no del modificador más cercano al verbo. En 'La coordinación de los equipos de trabajo fue evaluada', el núcleo del sujeto es 'coordinación' (singular), no 'equipos' ni 'trabajo'; por eso el verbo va en singular. El error de 'concordancia por atracción' ocurre cuando el verbo concuerda con el sustantivo más próximo ('La coordinación de los equipos fueron evaluados') en lugar del núcleo real del sujeto.",
+  q:"En la oración '________ de las principales propuestas del comité técnico ________ revisadas por la junta directiva', ¿qué formas son las correctas para mantener la concordancia normativa?",
+  opts:["'Algunas / fueron', porque el núcleo del sujeto es 'algunas' (cuantificador plural) que concuerda con 'revisadas'.","'La totalidad / fue', porque el núcleo del sujeto es 'totalidad' (singular femenino) y el verbo debe ir en singular.","Ambas son correctas porque en español actual el hablante puede elegir según el énfasis semántico."],
+  correct:1, expl:"Si el cuantificador es 'la totalidad' (núcleo singular), el verbo va en singular: 'La totalidad de las principales propuestas fue revisada'. La concordancia con 'algunas' (plural) también sería correcta en esa opción, pero la pregunta pide la opción que aplica la regla del núcleo singular."
+},
+{
+  id:44, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"D",
+  pTitle:"Niveles de Abstracción del Léxico Académico",
+  passage:"El vocabulario de los textos académicos opera en distintos niveles de abstracción según la función que cumplen en el argumento. Conocer esos niveles es indispensable para seleccionar con precisión el término adecuado a cada función argumentativa.",
+  q:"Relaciona cada nivel de abstracción léxica con su función en el texto académico.",
+  leftItems:["Léxico de alta abstracción (metaconceptos)","Léxico de dominio específico (tecnicismos)","Léxico de evidencia (datos y ejemplos)"],
+  rightItems:["Nombra hechos, casos o medidas concretas que ilustran o comprueban la afirmación teórica","Denomina con precisión los objetos, procesos y relaciones propios de un campo disciplinar","Organiza la lógica argumentativa del texto: 'hipótesis', 'evidencia', 'contradicción', 'implicación'"],
+  correctPairs:[[0,2],[1,1],[2,0]],
+  expl:"Metaconceptos = organizan la lógica argumentativa; Tecnicismos = denominan objetos del campo disciplinar; Léxico de evidencia = nombra datos y ejemplos concretos."
+},
+{
+  id:45, sub:"2.1", label:"Redacción indirecta – Ámbito de estudio", fmt:"B",
+  pTitle:"La Reseña Crítica Académica",
+  passage:"La reseña crítica difiere del resumen en que no solo describe sino que evalúa: identifica los aportes originales de la obra reseñada, señala sus limitaciones metodológicas o conceptuales, y la sitúa en el debate académico vigente. Una reseña que únicamente resume no cumple su función evaluativa y no constituye un aporte a la conversación académica. Sin embargo, una reseña que solo critica sin demostrar comprensión de la obra reseñada tampoco es aceptable: la evaluación debe surgir de una lectura cuidadosa que justifique cada juicio con evidencia textual.",
+  q:"Según el texto, una reseña académica rigurosa debe equilibrar la descripción comprensiva de la obra con la ________ fundamentada en evidencia textual de sus aportes y limitaciones.",
+  opts:["reproducción literal","evaluación crítica","paráfrasis extensa"],
+  correct:1, expl:"El texto distingue el resumen (descripción) de la reseña (descripción + evaluación); y exige que la evaluación sea 'fundamentada con evidencia textual'. 'Evaluación crítica' parafrasea ambas exigencias."
+},
+
+// ═══════════════════════════════════════════════════════
+// 2.2 REDACCIÓN INDIRECTA – PARTICIPACIÓN SOCIAL (15 Qs)
+// ═══════════════════════════════════════════════════════
+{
+  id:46, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"A",
+  pTitle:"El Oficio como Género Discursivo Institucional",
+  passage:"El oficio es el documento oficial mediante el cual una institución pública se comunica con otra institución o con personas externas. A diferencia del memorándum (comunicación interna), el oficio rige relaciones interinstitucionales y requiere una estructura precisa: número de oficio y clasificación documental, destinatario con cargo y adscripción completos, cuerpo del mensaje con exposición y parte dispositiva, y firma con cargo del emisor. El lenguaje del oficio debe ser formal, impersonal y preciso; el uso de la primera persona del singular ('yo solicito') puede resultar inadecuado cuando la emisora es la institución como conjunto.",
+  q:"¿Por qué el uso de la primera persona del singular puede ser inadecuado en un oficio institucional?",
+  opts:["Porque la RAE prohíbe el uso de la primera persona en documentos formales.","Porque en el oficio el emisor es la institución como entidad colectiva, no una persona individual, y la primera persona del singular personaliza lo que debe ser impersonal.","Porque los lectores del oficio no pueden identificar al firmante cuando se usa la primera persona."],
+  correct:1, expl:"El texto señala que el emisor del oficio es 'la institución como conjunto'; usar 'yo solicito' convierte esa voz institucional en individual, lo que contradice la impersonalidad requerida."
+},
+{
+  id:47, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"C",
+  pTitle:"Estructura del Dictamen Técnico",
+  passage:"El dictamen técnico es el documento mediante el cual un órgano o experto emite una opinión fundamentada sobre un asunto que requiere conocimiento especializado. Su estructura refleja el proceso de razonamiento que lleva de la revisión de los antecedentes a la emisión de la opinión.",
+  q:"Ordena las secciones del dictamen técnico en su secuencia estructural correcta.",
+  items:["Considerandos: análisis técnico de los antecedentes y fundamentos","Puntos resolutivos o dictaminatorios: opinión o resolución final","Antecedentes: descripción del asunto sometido a dictamen","Fundamento normativo y técnico aplicable al caso"],
+  correctOrder:[2,3,0,1],
+  expl:"Secuencia del dictamen: Antecedentes (qué se somete) → Fundamento normativo/técnico → Considerandos (análisis) → Puntos resolutivos (opinión final)."
+},
+{
+  id:48, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"B",
+  pTitle:"Tecnicismos Jurídicos en Documentos Institucionales",
+  passage:"Los documentos institucionales que tienen efectos jurídicos —convocatorias, reglamentos, acuerdos, resoluciones— utilizan fórmulas y tecnicismos del lenguaje jurídico que cumplen funciones precisas: las deónticas ('deberá', 'queda prohibido', 'se sancionará') expresan obligación, prohibición o consecuencia normativa; las potestativas ('podrá', 'tiene la facultad de') expresan habilitación sin obligatoriedad; y las declarativas ('se entiende por', 'para efectos del presente') definen el alcance de los términos dentro del documento. Confundir estas modalidades deónticas produce normas ambiguas: escribir 'podrá presentar' cuando la norma exige presentación obligatoria anula la exigencia.",
+  q:"En una convocatoria, escribir 'Los participantes podrán entregar su documentación antes del 30 de junio' cuando se quiere establecer una fecha límite obligatoria es un error porque la forma 'podrá' expresa ________, no obligación.",
+  opts:["certeza epistémica","habilitación potestativa","valor declarativo"],
+  correct:1, expl:"El texto clasifica 'podrá' como fórmula potestativa que expresa 'habilitación sin obligatoriedad'; usarla cuando se quiere imponer una obligación crea ambigüedad normativa porque el destinatario puede interpretarlo como opcional."
+},
+{
+  id:49, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"D",
+  pTitle:"Tipos de Resoluciones Administrativas",
+  passage:"En el derecho administrativo mexicano, las resoluciones son actos de autoridad que pueden tener distintos alcances y efectos jurídicos según su naturaleza y el procedimiento que las origina.",
+  q:"Relaciona cada tipo de resolución administrativa con su característica jurídica principal.",
+  leftItems:["Resolución definitiva","Resolución provisional o cautelar","Acuerdo de trámite"],
+  rightItems:["Ordena medidas urgentes para preservar el estado de las cosas mientras se resuelve el fondo","Dirige el procedimiento administrativo sin pronunciarse sobre el fondo del asunto","Pone fin al procedimiento pronunciándose sobre el fondo del asunto planteado"],
+  correctPairs:[[0,2],[1,0],[2,1]],
+  expl:"Definitiva = resuelve el fondo y pone fin al procedimiento; Provisional/cautelar = medidas urgentes para preservar el estado de las cosas; Acuerdo de trámite = dirige el procedimiento sin pronunciarse sobre el fondo."
+},
+{
+  id:50, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"A",
+  pTitle:"La Comunicación de Crisis en Instituciones Públicas",
+  passage:"Cuando una institución pública enfrenta una crisis de legitimidad —un escándalo de corrupción, un error grave de política o una tragedia en la que la institución tiene responsabilidad— la comunicación estratégica enfrenta una tensión fundamental: entre la transparencia (informar todo lo que se sabe, aunque sea perjudicial) y la gestión de daños (controlar la información para minimizar el daño institucional). Los manuales de comunicación de crisis recomiendan la transparencia proactiva como estrategia de largo plazo: las instituciones que reconocen rápidamente su responsabilidad y comunican las medidas correctivas recuperan la confianza más pronto que las que intentan minimizar, negar o postergar. El silencio institucional, en particular, es percibido como confirmación del problema.",
+  q:"¿Por qué los manuales de comunicación de crisis recomiendan la transparencia proactiva sobre la gestión de daños, según el texto?",
+  opts:["Porque la transparencia proactiva garantiza que la institución no sea sancionada legalmente.","Porque reconocer la responsabilidad y comunicar medidas correctivas permite recuperar la confianza más pronto que negar o postergar.","Porque la opinión pública siempre perdona los errores cuando se comunican en tiempo real."],
+  correct:1, expl:"El texto es preciso: la recomendación de transparencia proactiva se justifica porque las instituciones que reconocen y comunican medidas 'recuperan la confianza más pronto'; no garantiza impunidad legal ni promete perdón universal."
+},
+{
+  id:51, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"B",
+  pTitle:"Redacción de Convocatorias con Lenguaje Inclusivo",
+  passage:"Las convocatorias institucionales han incorporado paulatinamente los principios del lenguaje inclusivo para garantizar que los documentos públicos no excluyan simbólicamente a sectores de la población. Sin embargo, la incorporación del lenguaje inclusivo en documentos jurídicos enfrenta restricciones: los documentos normativos (reglamentos, convocatorias con efectos legales) deben ser precisos y no ambiguos; ciertas estrategias inclusivas como el uso de barras ('ciudadanos/as'), el símbolo @ o la 'e' genérica ('ciudadanes') no están reconocidas por la RAE y pueden generar conflictos de interpretación jurídica. La estrategia más recomendada en documentos con efectos legales es el uso de sustantivos colectivos y formas neutras: 'la ciudadanía', 'el personal docente', 'quienes participen'.",
+  q:"En convocatorias con efectos jurídicos, la estrategia de lenguaje inclusivo más recomendada es el uso de sustantivos colectivos y formas neutras porque, a diferencia de las barras o la 'e' genérica, estas formas son ________ por la norma y no generan ambigüedad de interpretación.",
+  opts:["cuestionadas y debatidas","reconocidas y aceptadas","informales y coloquiales"],
+  correct:1, expl:"El texto señala que barras, @ y 'e' genérica 'no están reconocidas por la RAE' y pueden generar conflictos; los sustantivos colectivos son la alternativa 'más recomendada', es decir, son reconocidos y aceptados por la norma."
+},
+{
+  id:52, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"C",
+  pTitle:"Proceso de Elaboración de un Reglamento Interno",
+  passage:"El reglamento interno de una institución es el instrumento normativo que regula las relaciones internas, los procedimientos y las conductas permitidas y prohibidas. Su elaboración sigue un proceso participativo y técnico que busca legitimidad y aplicabilidad.",
+  q:"Ordena las etapas del proceso de elaboración de un reglamento interno en su secuencia correcta.",
+  items:["Consulta y validación con los actores internos afectados","Diagnóstico de necesidades normativas y revisión del marco legal aplicable","Aprobación por el órgano colegiado competente y publicación","Redacción del proyecto de reglamento por el área jurídica o comisión designada"],
+  correctOrder:[1,3,0,2],
+  expl:"Secuencia: Diagnóstico de necesidades (qué se necesita regular) → Redacción del proyecto → Consulta y validación con actores → Aprobación y publicación."
+},
+{
+  id:53, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"A",
+  pTitle:"Precisión en la Redacción de Obligaciones Normativas",
+  passage:"La redacción de obligaciones en documentos normativos (reglamentos, lineamientos, convocatorias) requiere precisar: quién tiene la obligación (sujeto obligado), qué debe hacer (conducta exigida), en qué plazo (temporalidad) y qué sucede si no lo hace (consecuencia). La omisión de cualquiera de estos elementos produce una norma incompleta que no puede aplicarse con certeza. El más frecuentemente omitido es la consecuencia: una norma que establece 'el servidor público deberá presentar su declaración patrimonial' sin señalar las consecuencias de no hacerlo carece del elemento sancionatorio que le da eficacia.",
+  q:"¿Cuál de los siguientes es el enunciado normativo más completo según los criterios del texto?",
+  opts:["El personal administrativo deberá usar uniforme institucional durante las jornadas laborales.","Los servidores públicos de mando deberán presentar su declaración patrimonial anual antes del 31 de marzo; el incumplimiento será motivo de responsabilidad administrativa.","Se deberá respetar en todo momento el reglamento interno de la institución."],
+  correct:1, expl:"La opción B es la única que incluye los cuatro elementos: sujeto obligado ('servidores públicos de mando'), conducta ('presentar declaración'), plazo ('antes del 31 de marzo') y consecuencia ('responsabilidad administrativa'). A carece de consecuencia; C carece de sujeto preciso, conducta específica, plazo y consecuencia."
+},
+{
+  id:54, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"B",
+  pTitle:"El Informe de Evaluación de Programas",
+  passage:"El informe de evaluación de un programa institucional debe responder tres preguntas fundamentales: si el programa se implementó como fue diseñado (evaluación de proceso), si produjo los cambios esperados en los beneficiarios (evaluación de impacto) y si los recursos invertidos justifican los resultados obtenidos (análisis costo-beneficio). La claridad en la distinción entre estas tres dimensiones evita que el informe mezcle hallazgos de naturaleza diferente y que las recomendaciones sean inoperables por inespecíficas. Una recomendación como 'mejorar el programa' es inutilizable; una como 'incrementar la frecuencia de las sesiones de capacitación de 4 a 8 por ciclo para aumentar la tasa de retención del 45% al 65%' es accionable.",
+  q:"Según el texto, una recomendación de evaluación es útil y accionable cuando especifica ________, a diferencia de las recomendaciones genéricas que no pueden implementarse.",
+  opts:["los antecedentes históricos del programa","la conducta a modificar, el cambio esperado y los indicadores cuantificables","el organigrama completo del área responsable"],
+  correct:1, expl:"El texto contrasta 'mejorar el programa' (genérico e inoperante) con la recomendación que especifica qué hacer ('incrementar frecuencia'), cuánto cambiar (de 4 a 8 sesiones) y qué resultado esperar (de 45% a 65%); esos son precisamente 'conducta, cambio esperado e indicadores cuantificables'."
+},
+{
+  id:55, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"D",
+  pTitle:"Documentos de Rendición de Cuentas: Tipos y Funciones",
+  passage:"La rendición de cuentas institucional se materializa en distintos tipos de documentos según el destinatario y el tipo de información que se comunica. Cada documento tiene una función específica en el ecosistema de transparencia.",
+  q:"Relaciona cada documento de rendición de cuentas con su función y destinatario principal.",
+  leftItems:["Cuenta pública","Informe de resultados de gestión","Declaración de intereses"],
+  rightItems:["Permite identificar posibles conflictos entre los intereses personales del funcionario y sus responsabilidades institucionales","Integra el ejercicio del presupuesto y el estado financiero de la institución para revisión legislativa y ciudadana","Da cuenta a la ciudadanía y a los órganos de supervisión de los logros, metas y acciones realizadas en un período"],
+  correctPairs:[[0,1],[1,2],[2,0]],
+  expl:"Cuenta pública = ejercicio presupuestario para revisión legislativa; Informe de gestión = logros y metas para supervisión y ciudadanía; Declaración de intereses = identifica conflictos entre interés personal e institucional."
+},
+{
+  id:56, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"A",
+  pTitle:"Marcadores del Discurso en Comunicados Institucionales",
+  passage:"Los marcadores del discurso organizan la información en el comunicado institucional y orientan al lector sobre la función de cada enunciado. Los ordenadores ('en primer lugar', 'en segundo lugar', 'por último') jerarquizan; los de consecuencia ('en consecuencia', 'por lo anterior') señalan la relación entre antecedentes y resoluciones; los de reformulación ('es decir', 'en otros términos') clarifican; y los de cierre ('en virtud de lo expuesto', 'por todo lo anterior') introducen la parte dispositiva o resolutiva. El uso incorrecto de los marcadores puede hacer que el lector confunda una justificación con una conclusión o que no identifique el momento en que el documento pasa de los antecedentes a la resolución.",
+  q:"En un comunicado que pasa de los antecedentes a la resolución, ¿qué tipo de marcador del discurso debe usarse para señalar ese tránsito?",
+  opts:["Un marcador ordenador como 'en primer lugar', porque enumera los elementos de la resolución.","Un marcador de cierre-consecuencia como 'en virtud de lo expuesto' o 'por lo anterior', porque señala que lo que sigue se deriva de los antecedentes presentados.","Un marcador de reformulación como 'es decir', porque aclara lo que ya se dijo en los antecedentes."],
+  correct:1, expl:"El tránsito de antecedentes a resolución es una relación de consecuencia o derivación; los marcadores de cierre-consecuencia ('en virtud de lo expuesto', 'por lo anterior') señalan exactamente ese momento en que el documento pasa de fundamentar a resolver."
+},
+{
+  id:57, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"C",
+  pTitle:"Estructura del Acta de Sesión de Órgano Colegiado",
+  passage:"El acta de sesión es el documento que da fe de lo ocurrido en una reunión de un órgano colegiado (junta directiva, consejo, comité) y tiene valor jurídico. Su estructura debe reflejar la secuencia temporal y deliberativa de la sesión.",
+  q:"Ordena las secciones del acta de sesión en su secuencia estructural correcta.",
+  items:["Acuerdos tomados con responsables y plazos","Desarrollo de cada punto del orden del día con síntesis de las intervenciones","Datos de apertura: lugar, fecha, hora, asistentes y quórum","Cierre: hora de conclusión y firmas de los asistentes"],
+  correctOrder:[2,1,0,3],
+  expl:"Secuencia del acta: Datos de apertura (quórum y asistentes) → Desarrollo de los puntos del orden del día → Acuerdos con responsables y plazos → Cierre con firmas."
+},
+{
+  id:58, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"B",
+  pTitle:"La Claridad en las Resoluciones Administrativas",
+  passage:"Una resolución administrativa clara debe evitar tres vicios frecuentes en la redacción burocrática: el hipérbaton excesivo (alterar el orden natural sujeto-verbo-complemento hasta hacer incomprensible la oración), la recurrencia a fórmulas latinas sin traducción o explicación ('nulla poena sine lege', 'in dubio pro reo'), y el uso de arcaísmos léxicos como 'asimismo', 'habida cuenta de', 'en el contexto del' en sustitución de conectores más claros. Cada uno de estos vicios responde a una tradición de oscuridad deliberada: el lenguaje jurídico históricamente ha servido para excluir a quienes no tienen acceso al código especializado, lo que contradice el principio de igualdad ante la ley.",
+  q:"Según el texto, la oscuridad del lenguaje jurídico tradicional no es solo un defecto técnico sino una práctica que ________ al excluir a quienes no manejan el código especializado.",
+  opts:["mejora la precisión normativa","contradice el principio de igualdad ante la ley","facilita la interpretación por parte de los jueces"],
+  correct:1, expl:"El texto dice explícitamente que el lenguaje jurídico oscuro 'ha servido para excluir a quienes no tienen acceso al código especializado, lo que contradice el principio de igualdad ante la ley'."
+},
+{
+  id:59, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"D",
+  pTitle:"Estrategias de Gestión de la Información en Crisis",
+  passage:"Cuando una institución enfrenta una crisis de comunicación, las estrategias disponibles difieren en su relación con la transparencia y sus efectos sobre la confianza institucional a corto y largo plazo.",
+  q:"Relaciona cada estrategia de comunicación de crisis con su efecto institucional predominante.",
+  leftItems:["Negación y silencio institucional","Reconocimiento y medidas correctivas","Minimización del incidente"],
+  rightItems:["Reduce el impacto inmediato pero no resuelve el problema de fondo y puede intensificar la crisis si emerge información adicional","Es percibido como confirmación del problema y produce pérdida acelerada de confianza","Permite la recuperación de confianza más pronto al demostrar responsabilidad y capacidad de respuesta"],
+  correctPairs:[[0,1],[1,2],[2,0]],
+  expl:"Negación/silencio = confirma el problema y acelera la pérdida de confianza; Reconocimiento + medidas = recuperación más pronta de confianza; Minimización = reduce impacto inmediato pero no resuelve el fondo."
+},
+{
+  id:60, sub:"2.2", label:"Redacción indirecta – Ámbito de participación social", fmt:"A",
+  pTitle:"La Consulta Previa en Derechos Indígenas",
+  passage:"El derecho a la consulta previa, libre e informada de los pueblos indígenas, reconocido en el Convenio 169 de la OIT y en la Declaración de la ONU sobre Derechos de los Pueblos Indígenas, establece que los Estados deben consultar a los pueblos afectados antes de tomar medidas que puedan afectar sus derechos, territorios o modos de vida. El proceso debe ser previo (antes de que la decisión esté tomada), libre (sin presiones ni incentivos indebidos) e informado (con información suficiente y comprensible). La consulta no equivale a un derecho de veto en todos los casos, pero en los que involucran medidas capaces de producir un impacto mayor, los estándares internacionales exigen el consentimiento, no solo la consulta.",
+  q:"¿Cuál es la distinción más relevante que establece el texto entre 'consulta' y 'consentimiento' en el derecho de los pueblos indígenas?",
+  opts:["La consulta aplica a decisiones locales y el consentimiento a decisiones nacionales.","El consentimiento se exige —más que la simple consulta— en los casos en que las medidas tienen un impacto mayor sobre los derechos y territorios indígenas.","La consulta es un derecho colectivo y el consentimiento es un derecho individual."],
+  correct:1, expl:"El texto establece esta distinción con precisión: la consulta es el estándar general, pero el consentimiento —un umbral más alto— se exige cuando el impacto es mayor; no es una cuestión de escala territorial ni de titularidad individual vs. colectiva."
+}
+];
+
+const TOTAL = Q.length; // 60
+
+// ── ALEATORIZACIÓN ──
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function shuffleOptions(q) {
+  if (q.fmt !== 'A' && q.fmt !== 'B') return q;
+  const indices = [...Array(q.opts.length).keys()];
+  const shuffled = shuffleArray(indices);
+  return {
+    ...q,
+    opts: shuffled.map(i => q.opts[i]),
+    correct: shuffled.indexOf(q.correct)
+  };
+}
+
+const SUBS_ORDER = ["1.1","1.2","1.3","2.1","2.2"];
+const shuffledQ = SUBS_ORDER.flatMap(sub =>
+  shuffleArray(Q.filter(q => q.sub === sub)).map(q => shuffleOptions(q))
+);
+Q.length = 0;
+shuffledQ.forEach(q => Q.push(q));
+
+const TIME_LIMIT = 90 * 60;
+
+// State
+let answers    = new Array(TOTAL).fill(null);
+let revealed   = new Array(TOTAL).fill(false);
+let orderStates= new Array(TOTAL).fill(null);
+let matchStates= new Array(TOTAL).fill(null);
+let current    = 0;
+let secondsLeft= TIME_LIMIT;
+let timerInterval;
+
+// ── HELPERS ──
+const BADGE = {"1.1":"b11","1.2":"b12","1.3":"b13","2.1":"b21","2.2":"b22"};
+const FMT_LABELS = {"A":"A · Cuestionamiento directo","B":"B · Completamiento","C":"C · Ordenamiento","D":"D · Relación de elementos"};
+const FMT_COLORS = {"A":"fmt-A","B":"fmt-B","C":"fmt-C","D":"fmt-D"};
+const SECTIONS_BASE = {
+  "1.1":"📖 Comprensión lectora · Ámbito de estudio",
+  "1.2":"📚 Comprensión lectora · Ámbito literario",
+  "1.3":"🌐 Comprensión lectora · Participación social",
+  "2.1":"✏️ Redacción indirecta · Ámbito de estudio",
+  "2.2":"📋 Redacción indirecta · Participación social"
+};
+const SECTIONS = {};
+SUBS_ORDER.forEach(sub => {
+  const idxs = Q.map((q,i) => q.sub===sub ? i+1 : null).filter(Boolean);
+  SECTIONS[sub] = `${SECTIONS_BASE[sub]} (${idxs[0]}–${idxs[idxs.length-1]})`;
+});
+
+function startExam() {
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('examScreen').classList.remove('hidden');
+  document.getElementById('navBar').classList.remove('hidden');
+  renderQ(0);
+  startTimer();
+}
+
+function renderQ(idx) {
+  current = idx;
+  const q = Q[idx];
+  const isRev = revealed[idx];
+  const hits = answers.filter((a,i) => a !== null && revealed[i] && checkAnswer(i)).length;
+
+  const dots = Q.map((_,i) => {
+    let c = 'dot';
+    if (i === idx) c += ' cur';
+    else if (revealed[i]) c += checkAnswer(i) ? ' hit' : ' miss';
+    else if (answers[i] !== null || orderStates[i] !== null || matchStates[i] !== null) c += ' done';
+    return `<div class="${c}" title="P${i+1}"></div>`;
+  }).join('');
+
+  let contentHTML = '';
+  if (q.fmt === 'A' || q.fmt === 'B') contentHTML = renderAB(q, idx, isRev);
+  else if (q.fmt === 'C') contentHTML = renderC(q, idx, isRev);
+  else if (q.fmt === 'D') contentHTML = renderD(q, idx, isRev);
+
+  const hasAnswer = answers[idx] !== null || orderStates[idx] !== null || matchStates[idx] !== null;
+
+  document.getElementById('examScreen').innerHTML = `
+    <div class="dots">${dots}</div>
+    <div class="sec-hint">${SECTIONS[q.sub]}</div>
+    <div class="q-card">
+      <div class="q-meta">
+        <div class="q-meta-l">
+          <span class="q-badge ${BADGE[q.sub]}">${q.label}</span>
+          <span class="fmt-badge ${FMT_COLORS[q.fmt]}">${FMT_LABELS[q.fmt]}</span>
+        </div>
+        <span class="q-num">P${idx+1}/${TOTAL}</span>
+      </div>
+      <div class="passage"><div class="p-lbl">📄 ${q.pTitle}</div>${q.passage}</div>
+      <div class="q-text">${q.q}</div>
+      ${contentHTML}
+      <div class="expl ${isRev ? 'show' : ''}"><strong>💡 Explicación:</strong> ${q.expl}</div>
+      ${!isRev && hasAnswer ? `<div class="confirm-wrap"><button class="btn btn-s btn-sm" onclick="revealAnswer()">Confirmar y ver respuesta</button></div>` : ''}
+    </div>`;
+
+  document.getElementById('navCur').textContent = idx + 1;
+  document.getElementById('navSc').textContent = hits;
+  document.getElementById('progBar').style.width = ((idx+1)/TOTAL*100)+'%';
+  document.getElementById('btnNext').textContent = idx === TOTAL-1 ? '🏁 Finalizar' : 'Sig. →';
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+// ── FORMAT A & B ──
+function renderAB(q, idx, isRev) {
+  const sel = answers[idx];
+  return `<div class="opts">${q.opts.map((opt,i) => {
+    let cls = 'opt';
+    if (isRev) { cls += ' locked'; if (i===q.correct) cls+=' ok'; else if (i===sel) cls+=' bad'; }
+    else if (i===sel) cls+=' sel';
+    const ico = isRev ? (i===q.correct ? '<span class="res-ico">✅</span>' : (i===sel ? '<span class="res-ico">❌</span>' : '')) : '';
+    return `<div class="${cls}" onclick="selectOpt(${i})"><div class="opt-lt">${String.fromCharCode(65+i)}</div><div style="flex:1">${opt}</div>${ico}</div>`;
+  }).join('')}</div>`;
+}
+
+function selectOpt(i) {
+  if (revealed[current]) return;
+  answers[current] = i;
+  renderQ(current);
+}
+
+// ── FORMAT C ──
+function renderC(q, idx, isRev) {
+  const state = orderStates[idx] || [...Array(q.items.length).keys()];
+  const isOk = isRev && checkAnswer(idx);
+  const n = state.length;
+  return `<div class="order-wrap ${isRev ? (isOk?'order-ok':'order-bad') : ''}" id="orderList">
+    ${state.map((origIdx, pos) => `
+      <div class="order-item" data-pos="${pos}" data-orig="${origIdx}">
+        <span style="font-size:.9rem;flex-shrink:0">${isRev ? (isOk?'✅':'❌') : '⠿'}</span>
+        <div class="order-num">${pos+1}</div>
+        <div class="order-text">${q.items[origIdx]}</div>
+        ${!isRev ? `<div class="order-arrows">
+          <button class="arrow-btn" onclick="moveOrder(${idx},${pos},-1)" ${pos===0?'disabled':''}>↑</button>
+          <button class="arrow-btn" onclick="moveOrder(${idx},${pos},1)"  ${pos===n-1?'disabled':''}>↓</button>
+        </div>` : ''}
+      </div>`).join('')}
+  </div>`;
+}
+
+function moveOrder(idx, pos, dir) {
+  const state = orderStates[idx] || [...Array(Q[idx].items.length).keys()];
+  const s = [...state];
+  const np = pos + dir;
+  if (np < 0 || np >= s.length) return;
+  [s[pos], s[np]] = [s[np], s[pos]];
+  orderStates[idx] = s;
+  answers[idx] = s;
+  renderQ(current);
+}
+
+// ── FORMAT D ──
+function renderD(q, idx, isRev) {
+  if (isRev) {
+    const pairs = matchStates[idx] || [];
+    return `<div class="match-pair-display">
+      ${q.leftItems.map((left,i) => {
+        const myPair = pairs.find(p => p[0]===i);
+        const rightIdx = myPair ? myPair[1] : null;
+        const correctRight = q.correctPairs[i][1];
+        const pairOk = rightIdx === correctRight;
+        return `<div class="match-pair ${pairOk?'ok':'bad'}">
+          <span>${left}</span>
+          <span class="match-arrow">→</span>
+          <span>${rightIdx !== null ? q.rightItems[rightIdx] : '(sin respuesta)'}</span>
+          <span style="margin-left:auto">${pairOk?'✅':'❌'}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  const pairs = matchStates[idx] || [];
+  const activeLeft = window._activeLeft !== undefined ? window._activeLeft : null;
+  const matchedRights = pairs.map(p => p[1]);
+
+  return `<div class="match-grid">
+    <div class="match-col">
+      <h5>Columna A</h5>
+      ${q.leftItems.map((item,i) => {
+        const paired = pairs.find(p => p[0]===i);
+        return `<div class="match-left-item ${activeLeft===i?'active':''}" onclick="selectLeft(${i})" style="${paired?'opacity:0.6;border-style:dashed':''}">${item}${paired ? ` → <em style="color:#01579b;font-size:.8em">${q.rightItems[paired[1]]}</em>` : ''}</div>`;
+      }).join('')}
+    </div>
+    <div class="match-col">
+      <h5>Columna B</h5>
+      ${q.rightItems.map((item,i) => {
+        const isMatched = matchedRights.includes(i);
+        return `<div class="match-right-item ${isMatched?'matched':''}" onclick="selectRight(${i})" style="${isMatched?'opacity:0.6;cursor:default':''}">${item}</div>`;
+      }).join('')}
+    </div>
+  </div>
+  ${pairs.length > 0 ? `<button class="btn btn-s" style="margin-top:8px;font-size:.78rem" onclick="resetMatch(${idx})">↩ Reiniciar pares</button>` : ''}`;
+}
+
+function selectLeft(i) {
+  if (revealed[current]) return;
+  window._activeLeft = i;
+  renderQ(current);
+}
+
+function selectRight(j) {
+  if (revealed[current]) return;
+  const i = window._activeLeft;
+  if (i === undefined || i === null) return;
+  const q = Q[current];
+  const pairs = matchStates[current] || [];
+  const newPairs = pairs.filter(p => p[0]!==i && p[1]!==j);
+  newPairs.push([i,j]);
+  matchStates[current] = newPairs;
+  answers[current] = newPairs;
+  window._activeLeft = null;
+  renderQ(current);
+}
+
+function resetMatch(idx) {
+  matchStates[idx] = [];
+  answers[idx] = null;
+  window._activeLeft = null;
+  renderQ(current);
+}
+
+// ── CHECK ANSWER ──
+function checkAnswer(idx) {
+  const q = Q[idx];
+  if (q.fmt === 'A' || q.fmt === 'B') return answers[idx] === q.correct;
+  if (q.fmt === 'C') {
+    const state = orderStates[idx];
+    if (!state) return false;
+    return q.correctOrder.every((v,i) => state[i] === v);
+  }
+  if (q.fmt === 'D') {
+    const pairs = matchStates[idx];
+    if (!pairs || pairs.length < q.leftItems.length) return false;
+    return q.correctPairs.every(([l,r]) => pairs.some(p => p[0]===l && p[1]===r));
+  }
+  return false;
+}
+
+function revealAnswer() {
+  revealed[current] = true;
+  window._activeLeft = null;
+  renderQ(current);
+}
+
+function nextQ() {
+  if (current < TOTAL-1) { window._activeLeft = null; renderQ(current+1); }
+  else showResults();
+}
+function prevQ() {
+  if (current > 0) { window._activeLeft = null; renderQ(current-1); }
+}
+
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    const m = Math.floor(secondsLeft/60), s = secondsLeft%60;
+    const el = document.getElementById('timer');
+    if (!el) return;
+    el.textContent = `${m}:${s<10?'0'+s:s}`;
+    el.className = 'timer' + (secondsLeft<=300?' danger':secondsLeft<=900?' warn':'');
+    if (secondsLeft<=0) showResults();
+  }, 1000);
+}
+
+function showResults() {
+  clearInterval(timerInterval);
+  const subs = ["1.1","1.2","1.3","2.1","2.2"];
+  const subLabels = {"1.1":"Estudio","1.2":"Literario","1.3":"Part. Social","2.1":"Redac. Estudio","2.2":"Redac. Social"};
+  const subColors = {"1.1":"#6a1b9a","1.2":"#01579b","1.3":"#1b5e20","2.1":"#bf360c","2.2":"#c2185b"};
+
+  let subHits = {};
+  subs.forEach(s => {
+    const qs = Q.filter(q => q.sub===s);
+    const hits = qs.filter(q => checkAnswer(Q.indexOf(q))).length;
+    subHits[s] = { hits, total: qs.length };
+  });
+
+  const total = subs.reduce((a,s) => a+subHits[s].hits, 0);
+  const pct = Math.round((total/TOTAL)*100);
+  const pass = pct >= 70;
+
+  const fmts = ["A","B","C","D"];
+  const fmtLabels = {"A":"Cuest. directo","B":"Completamiento","C":"Ordenamiento","D":"Relación"};
+  let fmtBrkdn = fmts.map(f => {
+    const fqs = Q.filter(q=>q.fmt===f);
+    const fhits = fqs.filter(q=>checkAnswer(Q.indexOf(q))).length;
+    return `<span style="font-size:.73rem;color:#757575">${fmtLabels[f]}: <strong>${fhits}/${fqs.length}</strong></span>`;
+  }).join(' · ');
+
+  const brkdn = subs.map(s => {
+    const sc = subHits[s]; const p = Math.round((sc.hits/sc.total)*100);
+    return `<div class="bk-item"><div class="bk-lbl" style="color:${subColors[s]}">${s} · ${subLabels[s]}</div>
+      <div class="bk-sc" style="color:${subColors[s]}">${sc.hits}/${sc.total} <small style="font-weight:400;color:#757575">(${p}%)</small></div>
+      <div class="bk-bar"><div class="bk-fill" style="width:${p}%;background:${subColors[s]}"></div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('examScreen').classList.add('hidden');
+  document.getElementById('navBar').classList.add('hidden');
+  document.getElementById('resultsScreen').classList.remove('hidden');
+  document.getElementById('resultsScreen').innerHTML = `
+    <div class="res-screen">
+      <div class="score-ring" style="background:${pass?'linear-gradient(135deg,#1b5e20,#43a047)':'linear-gradient(135deg,#b71c1c,#e53935)'}">
+        ${pct}%
+      </div>
+      <h2>${pass ? '¡Excelente trabajo! 🎉' : 'Sigue practicando 💪'}</h2>
+      <p class="res-big"><strong>${total}</strong> aciertos de <strong>${TOTAL}</strong> preguntas</p>
+      <p style="font-size:.73rem;color:#9e9e9e;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${fmtBrkdn}</p>
+      <div class="brkdn">${brkdn}</div>
+      <p style="font-size:.78rem;color:#757575;margin:10px 0 20px;line-height:1.5">${pass?'Alcanzaste el umbral (≥70%). ¡Preparado para el SPEN! · v5 nivel avanzado':'No alcanzaste el 70%. Repasa las subáreas y formatos con menor puntaje. · v5 nivel avanzado'}</p>
+      <button class="btn btn-p btn-lg" onclick="location.reload()">🔀 Nuevo simulacro (orden aleatorio)</button>
+    </div>`;
+  window.scrollTo({top:0,behavior:'instant'});
+}
+</script>
+</body>
+</html>
